@@ -1,3 +1,5 @@
+import {Swatches} from "@d3/color-legend"
+
 let keyframes = [
     {
         activeVerse: 1, 
@@ -106,11 +108,33 @@ chart = function() {
     return Object.assign(svg.node(), {scales: {color}});
   }
 
+
+/*
+// let bubbleChartData;
+
+file = "/Users/benjamindixon/Desktop/InfoVisStaticVis/infovis25/Disability_and_Health_Data_System__DHDS__20250130.csv"
+
+// var data = Papa.parse(csv);
+
+Papa.parse("", {
+	download: true,
+	step: function(row) {
+		console.log("Row:", row.data);
+	},
+	complete: function() {
+		console.log("All done!");
+	}
+});
+"""
+*/
+
 let bubbleChartData;
+
 // need to first load data before creating the chart
 async function loadData(){
-    await d3.csv("/Users/benjamindixon/Desktop/InfoVisStaticVis/infovis25/Disability_and_Health_Data_System__DHDS__20250130.csv").then(data=>{
+    await d3.csv("InfoVisStaticVis/infovis25/Disability_and_Health_Data_System__DHDS__20250130.csv").then(data=>{
         bubbleChartData = data;
     })
 }
 
+// could parse data with PapaParse
