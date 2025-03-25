@@ -132,7 +132,7 @@ let bubbleChartData;
 
 // need to first load data before creating the chart
 async function loadData(){
-    await d3.csv("InfoVisStaticVis/infovis25/Disability_and_Health_Data_System__DHDS__20250130.csv").then(data=>{
+    await d3.csv("Disability_and_Health_Data_System__DHDS__20250130.csv").then(data=>{
         bubbleChartData = data;
     })
 }
