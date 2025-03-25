@@ -37,6 +37,7 @@ body {
     display: flex; 
     flex-grow: 1; 
     min-height: calc(100vh - 150px);
+    padding-left: 50px;
 }
 
 .bubble-column {
@@ -44,7 +45,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 100px;
 }
 
 .bubbles-temp {
@@ -63,9 +64,9 @@ body {
 }
 
 .verse {
-    font-size: 1em;
+    font-size: large;
     list-style-type: none;
-    padding: 0px;
+    padding: 20px;
     font-weight: 200;
     text-align: center;
     font-family: "Montserrat";
