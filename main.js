@@ -7,13 +7,13 @@ async function loadData() {
 
 
 function createBubbleChart(data) {
-    const width = 928;
+    const width = 1000;
     const height = width;
     const margin = 1;
     const color = d3.scaleOrdinal(d3.schemeTableau10);
     
     const pack = d3.pack()
-        .size([width - margin * 2, height - margin * 2])
+        .size([width - margin * 10, height - margin * 10])
         .padding(3);
 
     const root = pack(d3.hierarchy({children: data})
@@ -54,6 +54,7 @@ function createBubbleChart(data) {
         .text(d => d3.format(",d")(d.value));
 }
 
+
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         const data = await loadData();
@@ -68,5 +69,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-loadData().then(data => createBubbleChart(data));
 
