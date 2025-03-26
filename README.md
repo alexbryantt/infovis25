@@ -1,5 +1,8 @@
 # Bubble Chart of Disability Categories Static Visualization 
-HOW-TO:
+
+Runs on https://infovis25.vercel.app/
+
+HOW-TO RUN LOCALLY:
 - Have 'summaries_ready.csv', index.html, and main.js in the same folder.
 - Run index.html in a local browser.
 
