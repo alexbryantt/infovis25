@@ -40,6 +40,11 @@ body {
     padding-left: 30px;
 }
 
+.line-i {
+    font-style: italic;
+    margin-bottom: 15px;
+}
+
 .bubble-column {
     flex: 1;
     display: flex;
