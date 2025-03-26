@@ -24,7 +24,8 @@ function createBubbleChart(data) {
         .attr("width", width)
         .attr("height", height)
         .attr("viewBox", [-margin, -margin, width, height])
-        .attr("style", "max-width: 100%; height: auto; font: 12px sans-serif;");
+        .attr("style", "max-width: 100%; height: auto; font: 12px sans-serif;")
+        .attr("text-anchor", "middle"); 
 
     const node = svg.append("g")
         .selectAll()
@@ -50,7 +51,7 @@ function createBubbleChart(data) {
     text.append("tspan")
         .attr("x", 0)
         .attr("y", d => `${d.data.id.split(/(?=[A-Z][a-z])|\s+/g).length / 2 + 0.35}em`)
-        .attr("fill-opacity", 0.7)
+        .attr("fill-opacity", 1)
         .text(d => d3.format(",d")(d.value));
 }
 
