@@ -1,5 +1,3 @@
-import {Swatches} from "@d3/color-legend"
-
 let keyframes = [
     {
         activeVerse: 1, 
@@ -60,7 +58,8 @@ chart = function() {
     // for each node; lastly apply the pack layout.
     const root = pack(d3.hierarchy({children: data})
         .sum(d => d.value));
-  
+    console.log("JS");
+    loadData();
     // Create the SVG container.
     const svg = d3.create("svg")
         .attr("width", width)
@@ -108,7 +107,7 @@ chart = function() {
     return Object.assign(svg.node(), {scales: {color}});
   }
 
-
+chart()
 /*
 // let bubbleChartData;
 
@@ -132,8 +131,9 @@ let bubbleChartData;
 
 // need to first load data before creating the chart
 async function loadData(){
-    await d3.csv("Disability_and_Health_Data_System__DHDS__20250130.csv").then(data=>{
+    await d3.csv("summaries_ready.csv").then(data=>{
         bubbleChartData = data;
+        console.log(data);
     })
 }
 
