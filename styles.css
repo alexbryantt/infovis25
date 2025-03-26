@@ -72,3 +72,14 @@ body {
     font-family: "Montserrat";
     color: rgb(208, 199, 194);
 }
+
+/* Ensure proper container sizing */
+.bubble-column {
+    flex: 1;
+    min-height: 600px; /* Ensures space for chart */
+}
+
+#bubble-chart svg {
+    display: block;
+    margin: 0 auto;
+}
