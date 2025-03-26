@@ -38,8 +38,10 @@ function createBubbleChart(data) {
         .attr("fill", d => color(d.data.id))
         .attr("r", d => d.r);
 
+    let ratio = 0.2;
     const text = node.append("text")
-        .attr("clip-path", d => `circle(${d.r})`);
+        .attr("clip-path", d => `circle(${d.r})`)
+        .style("font-size", d => ratio * d.r);
 
     text.selectAll()
         .data(d => d.data.id.split(/(?=[A-Z][a-z])|\s+/g))
