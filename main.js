@@ -6,6 +6,17 @@ async function loadData() {
 }
 
 
+function orderData(data) {
+    for(let i = 0; i < json.length; i++) {
+        if (json[i].id === "Any Disability") {
+            json.push(json.splice(i, 1)[0]);
+            break;
+        }
+    }    
+}
+
+
+
 function createBubbleChart(data) {
     const width = 1000;
     const height = width;
@@ -14,7 +25,7 @@ function createBubbleChart(data) {
     
     const pack = d3.pack()
         .size([width - margin * 10, height - margin * 10])
-        .padding(3);
+        .padding(4);
 
     const root = pack(d3.hierarchy({children: data})
         .sum(d => d.value));
@@ -55,6 +66,31 @@ function createBubbleChart(data) {
         .attr("y", d => `${d.data.id.split(/(?=[A-Z][a-z])|\s+/g).length / 2 + 0.35}em`)
         .attr("fill-opacity", 1)
         .text(d => d3.format(",d")(d.value));
+
+    // simulation force modifiable in .strength()
+    const simulation = d3.forceSimulation(root.leaves())
+        // https://d3js.org/d3-force/center
+        .force("center", d3.forceCenter(width / 2, height / 2))
+        // the force of collision so that nodes don't clip
+        .force("collision", d3.forceCollide().radius(d => d.r + 2))
+        .force("x", d3.forceX(width / 2).strength(0.02))
+        .force("y", d3.forceY(height / 2).strength(0.02));
+
+    // applies a "special" force
+    simulation.force("special", alpha => {
+        root.leaves().forEach(d => {
+            if (d.data.id === "No Disability") {
+                d.x = width / 2;
+                d.y = height / 2;
+            }
+        });
+    });
+
+    // https://d3js.org/d3-force/simulation
+    simulation.on("tick", () => {
+        node.attr("transform", d => `translate(${d.x},${d.y})`);
+  });
+
 }
 
 

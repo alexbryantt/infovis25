@@ -2,9 +2,9 @@
 
 header {
     text-align: left;
-    height: 400px;
-    padding-left: 50px;
-    padding-top: 50px;
+    height: 250px;
+    padding-left: 30px;
+    padding-top: 30px;
 }
 
 body {
@@ -18,7 +18,7 @@ body {
 }
 
 .title {
-    font-size: 80px;
+    font-size: 40px;
     font-weight: 400;
     font-family: "Montserrat";
     color: rgb(208, 199, 194);
@@ -36,8 +36,8 @@ body {
 .wrapper-class {
     display: flex; 
     flex-grow: 1; 
-    min-height: calc(100vh - 150px);
-    padding-left: 50px;
+    min-height: calc(100vh - 100px);
+    padding-left: 30px;
 }
 
 .bubble-column {
