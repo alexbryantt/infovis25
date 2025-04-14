@@ -1,45 +1,32 @@
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Keyframes (Ordered for column-wise, line-by-line progression)
+// Data: Keyframe Definitions
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 let keyframes = [
-    // Left Column - Verse 1
     { disabilityId: "all disability", verseId: "verse1", activeLines: [1] },
     { disabilityId: "all disability", verseId: "verse1", activeLines: [2] },
     { disabilityId: "all disability", verseId: "verse1", activeLines: [3] },
-
-    // Left Column - Verse 4
     { disabilityId: "mobility disability", verseId: "verse2", activeLines: [1] },
     { disabilityId: "mobility disability", verseId: "verse2", activeLines: [2] },
     { disabilityId: "mobility disability", verseId: "verse2", activeLines: [3] },
-
-    // Left Column - Verse 6
     { disabilityId: "self-care disability", verseId: "verse3", activeLines: [1] },
     { disabilityId: "self-care disability", verseId: "verse3", activeLines: [2] },
     { disabilityId: "self-care disability", verseId: "verse3", activeLines: [3] },
-
-    // Right Column - Verse 2
     { disabilityId: "cognitive disability", verseId: "verse4", activeLines: [1] },
     { disabilityId: "cognitive disability", verseId: "verse4", activeLines: [2] },
     { disabilityId: "cognitive disability", verseId: "verse4", activeLines: [3] },
-
-    // Right Column - Verse 3
     { disabilityId: "auditory disability", verseId: "verse5", activeLines: [1] },
     { disabilityId: "auditory disability", verseId: "verse5", activeLines: [2] },
     { disabilityId: "auditory disability", verseId: "verse5", activeLines: [3] },
-
-    // Right Column - Verse 5
     { disabilityId: "visual disability", verseId: "verse6", activeLines: [1] },
     { disabilityId: "visual disability", verseId: "verse6", activeLines: [2] },
     { disabilityId: "visual disability", verseId: "verse6", activeLines: [3] },
-
-    // Right Column - Verse 7
     { disabilityId: "independent disability", verseId: "verse7", activeLines: [1] },
     { disabilityId: "independent disability", verseId: "verse7", activeLines: [2] },
     { disabilityId: "independent disability", verseId: "verse7", activeLines: [3] },
 ];
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Data loader functions
+// Data Loading Function
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 async function loadData() {
     return d3.csv("../summaries_ready.csv", d => ({
@@ -49,7 +36,7 @@ async function loadData() {
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Creates dynamic bubble chart
+// Chart Creation Function
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 function createBubbleChart(data) {
     const width = 1000;
@@ -82,7 +69,7 @@ function createBubbleChart(data) {
         .attr("fill-opacity", 0.7)
         .attr("fill", d => color(d.data.id))
         .attr("r", d => d.r)
-        .on("click", handleBubbleClick); // Add click event listener
+        .on("click", handleBubbleClick);
 
     const text = node.append("text")
         .attr("clip-path", d => `circle(${d.r})`)
@@ -116,40 +103,91 @@ function createBubbleChart(data) {
     });
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Data: Disability Mapping
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+const disabilityMapping = {
+    "Any Disability": "all disability",
+    "Mobility Disability": "mobility disability",
+    "Self-care Disability": "self-care disability",
+    "Cognitive Disability": "cognitive disability",
+    "Hearing Disability": "auditory disability",
+    "Vision Disability": "visual disability",
+    "Independent Living Disability": "independent disability",
+    "Any Disability": "no disability"
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Module Globals
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 let activeDisability = null;
+let keyframeIndex = 0;
+let visibleVerseIndex = 0;
+const allVerses = d3.selectAll(".line");
+let isClicking = false;
+let clickTimeout = null;
+let scrollTimeout = null;
+let isScrolling = false;
 
-function handleBubbleClick(event, d) {
-    const disabilityId = d.data.id;
-    console.log("Clicked bubble:", disabilityId);
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Keyframe Lookup Function
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+function findFirstKeyframeByDisability(disabilityId) {
+    const mappedDisability = disabilityMapping[disabilityId];
+    if (mappedDisability) {
+        for (let i = 0; i < keyframes.length; i++) {
+            if (keyframes[i].disabilityId === mappedDisability) {
+                return i;
+            }
+        }
+    }
+    return null;
+}
 
-    // Reset previous highlighting
-    d3.selectAll(".verse").classed("active-verse", false);
-    d3.selectAll(".line").classed("active-line", false);
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Keyframe Transition Function
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+function scrollToKeyframe(index) {
+    if (index !== null && index >= 0 && index < keyframes.length) {
+        const kf = keyframes[index];
+        d3.selectAll(".verse").classed("active-verse", false);
+        d3.selectAll(".line").classed("active-line", false);
 
-    // Find the verse associated with the clicked disability
-    const verseElement = d3.selectAll(".verse")
-        .filter(function() {
-            return d3.select(this).attr("data-disability") === disabilityId;
-        });
+        const activeVerseElement = d3.select(`#${kf.verseId}`);
+        if (!activeVerseElement.empty()) {
+            activeVerseElement.classed("active-verse", true);
+            activeVerseElement.select(`.line:nth-child(${kf.activeLines[0] + 1})`).classed("active-line", true);
 
-    if (!verseElement.empty()) {
-        verseElement.classed("active-verse", true);
-        verseElement.select(".line").classed("active-line", true);
-        // Find the index of this verse and update visibleVerseIndex
-        const allVerses = d3.selectAll(".verse").nodes();
-        visibleVerseIndex = allVerses.indexOf(verseElement.node());
-        scrollToVerse(visibleVerseIndex); // Scroll to the clicked verse
+            // Find the index of the *first line* of this verse.  This is crucial.
+            const allLines = d3.selectAll(".line").nodes();
+            const firstLineOfVerse = activeVerseElement.select(".line:nth-child(1)").node();
+            const indexOfFirstLine = allLines.indexOf(firstLineOfVerse);
+
+            if (indexOfFirstLine !== -1) {
+                visibleVerseIndex = indexOfFirstLine; // Set visibleVerseIndex to the correct line
+                const verse = activeVerseElement.select(".line").node();
+                const poetryColumn = verse.parentNode;
+                poetryColumn.scrollTop = verse.offsetTop - poetryColumn.offsetTop - (poetryColumn.offsetHeight - verse.offsetHeight) / 2;
+            }
+        }
+        keyframeIndex = index;
     }
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Clicking behaviors - taken from scrollytell
+// Bubble Click Handler
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-let isClicking = false;
-let keyframeIndex = 0;
-let visibleVerseIndex = 0;
-const allVerses = d3.selectAll(".line");
+function handleBubbleClick(event, d) {
+    const disabilityId = d.data.id;
+    const firstKeyframeIndex = findFirstKeyframeByDisability(disabilityId);
+    if (firstKeyframeIndex !== null) {
+        scrollToKeyframe(firstKeyframeIndex);
+    }
+}
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Verse Scroller
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 function scrollToVerse(index) {
     if (index >= 0 && index < allVerses.size()) {
         const verse = allVerses.nodes()[index];
@@ -160,10 +198,12 @@ function scrollToVerse(index) {
     }
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Button Click Handlers
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 function forwardClicked() {
     if (isClicking) return;
     isClicking = true;
-    console.log(allVerses.size() - 1);
     if (visibleVerseIndex < allVerses.size() - 1) {
         visibleVerseIndex++;
         scrollToVerse(visibleVerseIndex);
@@ -174,7 +214,7 @@ function forwardClicked() {
     clickTimeout = setTimeout(() => {
         isClicking = false;
         clickTimeout = null;
-    }, 200);
+    }, 750);
 }
 
 function backwardClicked() {
@@ -190,31 +230,26 @@ function backwardClicked() {
     clickTimeout = setTimeout(() => {
         isClicking = false;
         clickTimeout = null;
-    }, 200);
+    }, 750);
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Keyframe Drawer
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 function drawKeyframe(kfi) {
-    console.log(kfi);
     let kf = keyframes[Math.min(kfi, keyframes.length - 1)];
-    console.log(kf);
+
     d3.selectAll(".verse").classed("active-verse", false);
     d3.selectAll(".line").classed("active-line", false);
-    console.log(kf.verseId);
 
     const activeVerseElement = d3.select(`#${kf.verseId}`);
     activeVerseElement.classed("active-verse", true);
-
-    kf.activeLines.forEach(lineIndex => {
-        activeVerseElement.select(`#line${lineIndex}`).classed("active-line", true);
-    });
+    activeVerseElement.select(`.line:nth-child(${kf.activeLines[0] + 1})`).classed("active-line", true);
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Scrolling behaviors
+// Event Listeners
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-let scrollTimeout = null;
-let isScrolling = false;
-
 window.addEventListener('wheel', (event) => {
     if (isScrolling) {
         return;
@@ -234,9 +269,6 @@ window.addEventListener('wheel', (event) => {
     }, 500);
 });
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Initialize the Event Listener
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         const data = await loadData();
@@ -245,8 +277,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById("forward-button").addEventListener("click", forwardClicked);
         document.getElementById("backward-button").addEventListener("click", backwardClicked);
 
-        // Initialize scroll to the first verse
         scrollToVerse(0);
+        drawKeyframe(0);
 
     } catch (error) {
         console.error('Error loading visualization:', error);
