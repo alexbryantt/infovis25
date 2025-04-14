@@ -38,6 +38,12 @@ async function loadData() {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Chart Creation Function
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+let simulation;
+let bubbleData;
+let previousCenterNodeId = "No Disability"; // Track the previous center node
+let isFirstClick = true;
+let svg; // Make svg a global variable
+
 function createBubbleChart(data) {
     const width = 1000;
     const height = width;
@@ -51,8 +57,11 @@ function createBubbleChart(data) {
     const root = pack(d3.hierarchy({children: data})
         .sum(d => d.value));
 
-    const svg = d3.select("#bubble-chart-container")
-        .append("svg")
+    //Select or Create the SVG
+    svg = d3.select("#bubble-chart-container")
+        .selectAll("svg")
+        .data([null]) //ensure only one svg
+        .join("svg")
         .attr("width", "100%")
         .attr("height", "100%")
         .attr("viewBox", [-margin, -margin, width, height])
@@ -60,8 +69,7 @@ function createBubbleChart(data) {
         .attr("preserveAspectRatio", "xMidYMid meet")
         .attr("text-anchor", "middle");
 
-    const node = svg.append("g")
-        .selectAll()
+    const node = svg.selectAll("g")
         .data(root.leaves())
         .join("g");
 
@@ -81,27 +89,57 @@ function createBubbleChart(data) {
         .attr("y", (d, i, nodes) => `${i - nodes.length / 2 + 0.8}em`)
         .text(d => d);
 
-    const simulation = d3.forceSimulation(root.leaves())
-        .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("collision", d3.forceCollide().radius(d => d.r + 2))
-        .force("x", d3.forceX(width / 2).strength(0.02))
-        .force("y", d3.forceY(height / 2).strength(0.02))
-        .on("tick", () => {
-            node.attr("transform", d => `translate(${d.x},${d.y})`);
-        });
+    bubbleData = data;
+    createSimulation(); //initial call, pass null
+}
 
-    simulation.force("special", alpha => {
-        root.leaves().forEach(d => {
-            if (d.data.id === "No Disability") {
-                d.fx = width / 2;
-                d.fy = height / 2;
-            } else {
-                d.fx = null;
-                d.fy = null;
+function createSimulation(clickedData = null) { //changed
+    const width = 1000;
+    const height = width;
+    const margin = 1;
+    const collisionRadius = 5;
+
+    const root = d3.pack().size([width - margin * 10, height - margin * 10]).padding(4)(d3.hierarchy({ children: bubbleData }).sum(d => d.value));
+
+    simulation = d3.forceSimulation(root.leaves())
+        .force("collision", d3.forceCollide().radius(d => d.r + collisionRadius));
+
+    if (isFirstClick) {
+        simulation.force("center", d3.forceCenter(width / 2, height / 2));
+        isFirstClick = false;
+    }
+
+    simulation.force("special", alpha => { // Changed to use alpha
+        const heightFactor = 2;
+        simulation.nodes().forEach(node => {
+            if (clickedData && node.data.id === clickedData.id) { //use clickedData
+                node.fx = width / 2;
+                node.fy = height / heightFactor;
+            } else if (isFirstClick && node.data.id === "No Disability") {
+                node.fx = width / 2;
+                node.fy = height / heightFactor;
             }
+            else {
+                node.fx = null;
+                const targetY = node.y + 10;
+                const bottomBoundary = height - node.r;
+                node.fy = targetY > bottomBoundary ? bottomBoundary : targetY;
+            }
+
+            // Enforce horizontal boundaries.  Important:  Use node.x and node.y
+            if (node.x < node.r) node.x = node.r;
+            if (node.x > width - node.r) node.x = width - node.r;
         });
     });
+
+    simulation.on("tick", () => {
+        const node = svg.selectAll("g").data(root.leaves());
+        node.attr("transform", d => `translate(${d.x},${d.y})`);
+    });
+
+    simulation.alphaTarget(0.3).restart(); // Add this line to start the simulation
 }
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Data: Disability Mapping
@@ -133,7 +171,6 @@ let isScrolling = false;
 // Keyframe Lookup Function
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 function findFirstKeyframeByDisability(disabilityId) {
-    console.log(disabilityId);
     const mappedDisability = disabilityMapping[disabilityId];
     if (mappedDisability) {
         for (let i = 0; i < keyframes.length; i++) {
@@ -165,13 +202,25 @@ function scrollToKeyframe(index) {
             const indexOfFirstLine = allLines.indexOf(firstLineOfVerse);
 
             if (indexOfFirstLine !== -1) {
-                visibleVerseIndex = indexOfFirstLine; // Set visibleVerseIndex to the correct line
+                visibleVerseIndex = indexOfFirstLine;
                 const verse = activeVerseElement.select(".line").node();
                 const poetryColumn = verse.parentNode;
                 poetryColumn.scrollTop = verse.offsetTop - poetryColumn.offsetTop - (poetryColumn.offsetHeight - verse.offsetHeight) / 2;
             }
         }
         keyframeIndex = index;
+
+        //  NEW FORCE CODE
+        const currentDisabilityId = kf.disabilityId;
+        const targetData = bubbleData.find(d => disabilityMapping[d.id] === currentDisabilityId);
+
+        simulation?.stop();
+        createSimulation(targetData); // Pass targetData
+
+        simulation.alphaTarget(0.3).restart();
+        simulation.transitionDuration = 250;
+        isFirstClick = false; //set to false after first click
+        //  NEW FORCE CODE END
     }
 }
 
@@ -273,8 +322,9 @@ window.addEventListener('wheel', (event) => {
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         const data = await loadData();
-        createBubbleChart(data);
-
+        bubbleData = data;
+        createBubbleChart(data); //initial call
+       // createSimulation(); // call is made in createBubbleChart
         document.getElementById("forward-button").addEventListener("click", forwardClicked);
         document.getElementById("backward-button").addEventListener("click", backwardClicked);
 
