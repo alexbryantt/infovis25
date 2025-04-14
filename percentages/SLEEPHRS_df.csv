@@ -11,6 +11,10 @@ Mobility Disability,1-6 Hours,36.7
 Mobility Disability,10+ Hours,14.5
 Mobility Disability,7-9 Hours,48.7
 Mobility Disability,Unknown,0.09999999999999432
+No Disability,1-6 Hours,0.0
+No Disability,10+ Hours,0.0
+No Disability,7-9 Hours,0.0
+No Disability,Unknown,100.0
 Vision Disability,1-6 Hours,52.5
 Vision Disability,10+ Hours,5.4
 Vision Disability,7-9 Hours,42.1

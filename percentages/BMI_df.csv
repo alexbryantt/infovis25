@@ -14,6 +14,11 @@ Mobility Disability,Obese,48.3
 Mobility Disability,Overweight,28.2
 Mobility Disability,Underweight,0.0
 Mobility Disability,Unknown,3.299999999999997
+No Disability,Normal Weight,0.0
+No Disability,Obese,0.0
+No Disability,Overweight,0.0
+No Disability,Underweight,0.0
+No Disability,Unknown,100.0
 Vision Disability,Normal Weight,23.2
 Vision Disability,Obese,39.9
 Vision Disability,Overweight,32.4

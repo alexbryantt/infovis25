@@ -11,6 +11,10 @@ Mobility Disability,Current Smoker,21.9
 Mobility Disability,Former Smoker,27.2
 Mobility Disability,Never Smoker,50.9
 Mobility Disability,Unknown,0.0
+No Disability,Current Smoker,0.0
+No Disability,Former Smoker,0.0
+No Disability,Never Smoker,0.0
+No Disability,Unknown,100.0
 Vision Disability,Current Smoker,31.3
 Vision Disability,Former Smoker,31.5
 Vision Disability,Never Smoker,37.2
