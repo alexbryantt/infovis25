@@ -6,61 +6,49 @@
         <script src="https://d3js.org/d3.v7.min.js"></script>
     </head>
     <body>
-        <header>
-            <div class="header-border">
-                <p class="title">Discursive Disability</p>
-                <p class="subtitle">A Poetic Analysis of 2022 U.S. Disability Statistics</p>
-            </div>
-        </header>
         <main class="wrapper-class">
-            <div class="bubble-column" id="bubble-chart"></div>
-            
-            <div class="poetry-column">
-                <div class="poetry-column-content">
-                    <!--all disability-->
-                    <ul class="verse" id="verse1">
+            <div class="visualization-container">
+                <div class="poetry-column left">
+                    <ul class="verse" id="verse1" data-disability="all disability">
                         <li class="line-i">all disability</li>
                         <li class="line" id="line1">Busy hands at work</li>
                         <li class="line" id="line2">Idle ones yearn for purpose</li>
                         <li class="line" id="line3">Potential stolen</li>
                     </ul>
-                    <!--cognitive disability-->
-                    <ul class="verse" id="verse2">
-                        <li class="line-i">cognitive disability</li>
-                        <li class="line" id="line1">The mind's tangled thread</li>
-                        <li class="line" id="line2">Weaves knots no hand can untie</li>
-                        <li class="line" id="line3">Still, they pull tighter</li>
-                    </ul>
-                    <!--hearing disability-->
-                    <ul class="verse" id="verse3">
-                        <li class="line-i">auditory disability</li>
-                        <li class="line" id="line1">Our voices falter</li>
-                        <li class="line" id="line2">Pleas are falling on deaf ears</li>
-                        <li class="line" id="line3">In cosmic irony</li>
-                    </ul>
-                    <!--mobility disability-->
-                    <ul class="verse" id="verse4">
+                    <ul class="verse" id="verse2" data-disability="mobility disability">
                         <li class="line-i">mobility disability</li>
                         <li class="line" id="line1">Prosperity's road</li>
                         <li class="line" id="line2">Is too steep a hill to climb,</li>
                         <li class="line" id="line3">With no ramp in sight</li>
                     </ul>
-                    <!--vision disability-->
-                    <ul class="verse" id="verse5">
-                        <li class="line-i">visual disability</li>
-                        <li class="line" id="line1">The threat of darkness</li>
-                        <li class="line" id="line2">Calls out from its hiding place:</li>
-                        <li class="line" id="line3">The end is in sight</li>
-                    </ul>
-                    <!--self care disability-->
-                    <ul class="verse" id="verse6">
+                    <ul class="verse" id="verse3" data-disability="self-care disability">
                         <li class="line-i">self-care disability</li>
                         <li class="line" id="line1">Like an afterthought,</li>
                         <li class="line" id="line2">Necessities pass me by.</li>
                         <li class="line" id="line3">Numbing indifference</li>
                     </ul>
-                    <!--independent living disability-->
-                    <ul class="verse" id="verse7">
+                </div>
+                <div class="bubble-chart-container" id="bubble-chart-container"></div>
+                <div class="poetry-column right">
+                    <ul class="verse" id="verse4" data-disability="cognitive disability">
+                        <li class="line-i">cognitive disability</li>
+                        <li class="line" id="line1">The mind's tangled thread</li>
+                        <li class="line" id="line2">Weaves knots no hand can untie</li>
+                        <li class="line" id="line3">Still, they pull tighter</li>
+                    </ul>
+                    <ul class="verse" id="verse5" data-disability="auditory disability">
+                        <li class="line-i">auditory disability</li>
+                        <li class="line" id="line1">Our voices falter</li>
+                        <li class="line" id="line2">Pleas are falling on deaf ears</li>
+                        <li class="line" id="line3">In cosmic irony</li>
+                    </ul>
+                    <ul class="verse" id="verse6" data-disability="visual disability">
+                        <li class="line-i">visual disability</li>
+                        <li class="line" id="line1">The threat of darkness</li>
+                        <li class="line" id="line2">Calls out from its hiding place:</li>
+                        <li class="line" id="line3">The end is in sight</li>
+                    </ul>
+                    <ul class="verse" id="verse7" data-disability="independent disability">
                         <li class="line-i">independent disability</li>
                         <li class="line" id="line1">Condescending looks</li>
                         <li class="line" id="line2">The store beyond my reach now</li>
@@ -72,7 +60,7 @@
         <footer>
             <button class="arrow-button" id="backward-button">◄</button>
             <button class="arrow-button" id="forward-button">►</button>
-          </footer>
+        </footer>
         <script src="main.js"></script>
     </body>
 </html>
