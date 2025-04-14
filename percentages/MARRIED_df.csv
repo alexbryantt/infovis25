@@ -1,0 +1,31 @@
+Disability_Type,Response_Value,Percentage
+Cognitive Disability,Divorced / Separated,19.1
+Cognitive Disability,Married / Unmarried Couple,49.1
+Cognitive Disability,Never Married,24.2
+Cognitive Disability,Widowed,7.5
+Cognitive Disability,Unknown,0.09999999999999432
+Hearing Disability,Divorced / Separated,21.7
+Hearing Disability,Married / Unmarried Couple,51.8
+Hearing Disability,Never Married,18.8
+Hearing Disability,Widowed,7.7
+Hearing Disability,Unknown,0.0
+Independent Living Disability,Divorced / Separated,14.1
+Independent Living Disability,Married / Unmarried Couple,48.0
+Independent Living Disability,Never Married,29.5
+Independent Living Disability,Widowed,8.5
+Independent Living Disability,Unknown,-0.09999999999999432
+Mobility Disability,Divorced / Separated,22.2
+Mobility Disability,Married / Unmarried Couple,50.1
+Mobility Disability,Never Married,20.9
+Mobility Disability,Widowed,6.8
+Mobility Disability,Unknown,1.4210854715202004e-14
+Self-care Disability,Divorced / Separated,30.8
+Self-care Disability,Married / Unmarried Couple,38.0
+Self-care Disability,Never Married,0.0
+Self-care Disability,Widowed,0.0
+Self-care Disability,Unknown,31.200000000000003
+Vision Disability,Divorced / Separated,20.0
+Vision Disability,Married / Unmarried Couple,48.1
+Vision Disability,Never Married,20.8
+Vision Disability,Widowed,11.1
+Vision Disability,Unknown,1.4210854715202004e-14

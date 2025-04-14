@@ -1,0 +1,19 @@
+Disability_Type,Response_Value,Percentage
+Cognitive Disability,Non-Veteran,12.6
+Cognitive Disability,Veteran,14.0
+Cognitive Disability,Unknown,73.4
+Hearing Disability,Non-Veteran,6.5
+Hearing Disability,Veteran,14.6
+Hearing Disability,Unknown,78.9
+Independent Living Disability,Non-Veteran,6.9
+Independent Living Disability,Veteran,6.7
+Independent Living Disability,Unknown,86.4
+Mobility Disability,Non-Veteran,10.3
+Mobility Disability,Veteran,12.9
+Mobility Disability,Unknown,76.8
+Self-care Disability,Non-Veteran,2.5
+Self-care Disability,Veteran,5.9
+Self-care Disability,Unknown,91.6
+Vision Disability,Non-Veteran,5.3
+Vision Disability,Veteran,3.4
+Vision Disability,Unknown,91.3

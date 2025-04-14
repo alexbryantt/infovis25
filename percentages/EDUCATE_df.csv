@@ -1,0 +1,25 @@
+Disability_Type,Response_Value,Percentage
+Cognitive Disability,College Graduate,14.3
+Cognitive Disability,High School Graduate,72.8
+Cognitive Disability,Some High School or Less,12.9
+Cognitive Disability,Unknown,0.0
+Hearing Disability,College Graduate,21.3
+Hearing Disability,High School Graduate,70.9
+Hearing Disability,Some High School or Less,0.0
+Hearing Disability,Unknown,7.799999999999997
+Independent Living Disability,College Graduate,10.6
+Independent Living Disability,High School Graduate,75.1
+Independent Living Disability,Some High School or Less,14.3
+Independent Living Disability,Unknown,1.4210854715202004e-14
+Mobility Disability,College Graduate,11.6
+Mobility Disability,High School Graduate,76.8
+Mobility Disability,Some High School or Less,0.0
+Mobility Disability,Unknown,11.600000000000009
+Self-care Disability,College Graduate,8.3
+Self-care Disability,High School Graduate,83.7
+Self-care Disability,Some High School or Less,0.0
+Self-care Disability,Unknown,8.0
+Vision Disability,College Graduate,14.9
+Vision Disability,High School Graduate,65.9
+Vision Disability,Some High School or Less,19.2
+Vision Disability,Unknown,-1.4210854715202004e-14

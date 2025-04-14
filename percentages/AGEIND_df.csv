@@ -1,0 +1,25 @@
+Disability_Type,Response_Value,Percentage
+Cognitive Disability,18-44,14.7
+Cognitive Disability,45-64,11.9
+Cognitive Disability,65+,8.3
+Cognitive Disability,Unknown,65.1
+Hearing Disability,18-44,3.5
+Hearing Disability,45-64,7.9
+Hearing Disability,65+,20.3
+Hearing Disability,Unknown,68.3
+Independent Living Disability,18-44,6.9
+Independent Living Disability,45-64,6.2
+Independent Living Disability,65+,7.7
+Independent Living Disability,Unknown,79.2
+Mobility Disability,18-44,3.9
+Mobility Disability,45-64,15.7
+Mobility Disability,65+,22.9
+Mobility Disability,Unknown,57.5
+Self-care Disability,18-44,1.6
+Self-care Disability,45-64,4.8
+Self-care Disability,65+,3.8
+Self-care Disability,Unknown,89.8
+Vision Disability,18-44,3.8
+Vision Disability,45-64,5.6
+Vision Disability,65+,8.1
+Vision Disability,Unknown,82.5

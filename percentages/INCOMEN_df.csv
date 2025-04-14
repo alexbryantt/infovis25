@@ -1,0 +1,37 @@
+Disability_Type,Response_Value,Percentage
+Cognitive Disability,"$15,000 to <$25,000",20.9
+Cognitive Disability,"$25,000 to <$35,000",23.4
+Cognitive Disability,"$35,000 to <$50,000",18.0
+Cognitive Disability,"$50,000+",24.1
+Cognitive Disability,"<$15,000",13.5
+Cognitive Disability,Unknown,0.09999999999999432
+Hearing Disability,"$15,000 to <$25,000",15.4
+Hearing Disability,"$25,000 to <$35,000",15.7
+Hearing Disability,"$35,000 to <$50,000",12.8
+Hearing Disability,"$50,000+",51.3
+Hearing Disability,"<$15,000",0.0
+Hearing Disability,Unknown,4.799999999999997
+Independent Living Disability,"$15,000 to <$25,000",29.5
+Independent Living Disability,"$25,000 to <$35,000",23.7
+Independent Living Disability,"$35,000 to <$50,000",10.8
+Independent Living Disability,"$50,000+",20.0
+Independent Living Disability,"<$15,000",16.1
+Independent Living Disability,Unknown,-0.09999999999999432
+Mobility Disability,"$15,000 to <$25,000",22.2
+Mobility Disability,"$25,000 to <$35,000",25.4
+Mobility Disability,"$35,000 to <$50,000",13.7
+Mobility Disability,"$50,000+",22.4
+Mobility Disability,"<$15,000",16.3
+Mobility Disability,Unknown,1.4210854715202004e-14
+Self-care Disability,"$15,000 to <$25,000",31.2
+Self-care Disability,"$25,000 to <$35,000",0.0
+Self-care Disability,"$35,000 to <$50,000",0.0
+Self-care Disability,"$50,000+",0.0
+Self-care Disability,"<$15,000",24.1
+Self-care Disability,Unknown,44.7
+Vision Disability,"$15,000 to <$25,000",30.9
+Vision Disability,"$25,000 to <$35,000",19.2
+Vision Disability,"$35,000 to <$50,000",0.0
+Vision Disability,"$50,000+",28.0
+Vision Disability,"<$15,000",10.8
+Vision Disability,Unknown,11.100000000000009
