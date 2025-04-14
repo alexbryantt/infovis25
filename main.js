@@ -114,7 +114,7 @@ const disabilityMapping = {
     "Hearing Disability": "auditory disability",
     "Vision Disability": "visual disability",
     "Independent Living Disability": "independent disability",
-    "Any Disability": "no disability"
+    "No Disability": "all disability"
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -133,6 +133,7 @@ let isScrolling = false;
 // Keyframe Lookup Function
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 function findFirstKeyframeByDisability(disabilityId) {
+    console.log(disabilityId);
     const mappedDisability = disabilityMapping[disabilityId];
     if (mappedDisability) {
         for (let i = 0; i < keyframes.length; i++) {
