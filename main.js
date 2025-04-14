@@ -1,3 +1,48 @@
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Keyframes
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+let keyframes = [
+    {
+        activeVerse: 1,
+        activeLines: [1, 2, 3],
+        svgUpdate: console.log("Hi")
+    },
+    {
+        activeVerse: 2,
+        activeLines: [1, 2, 3],
+        svgUpdate: console.log("Hi")
+    },
+    {
+        activeVerse: 3,
+        activeLines: [1, 2, 3],
+        svgUpdate: console.log("Hi")
+    },
+    {
+        activeVerse: 4,
+        activeLines: [1, 2, 3],
+        svgUpdate: console.log("Hi")
+    },
+    {
+        activeVerse: 5,
+        activeLines: [1, 2, 3],
+        svgUpdate: console.log("Hi")
+    },
+    {
+        activeVerse: 6,
+        activeLines: [1, 2, 3],
+        svgUpdate: console.log("Hi")
+    },
+    {
+        activeVerse: 7,
+        activeLines: [1, 2, 3],
+        svgUpdate: console.log("Hi")
+    },
+    
+]
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Data loader functions
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 async function loadData() {
     return d3.csv("../summaries_ready.csv", d => ({
         id: d.Response,
@@ -16,7 +61,9 @@ function orderData(data) {
 }
 
 
-
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Creates static bubble chart
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 function createBubbleChart(data) {
     const width = 1000;
     const height = width;
@@ -90,10 +137,127 @@ function createBubbleChart(data) {
     simulation.on("tick", () => {
         node.attr("transform", d => `translate(${d.x},${d.y})`);
   });
+    // this goes from dynamic to static instead of dynamic at once. to enable, comment out the static code above
+    // for (let i = 0; i < 300; ++i) simulation.tick();
+    // node.attr("transform", d => `translate(${d.x},${d.y})`);
+
 
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Clicking behaviors - taken from scrollytell
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+let isClicking = false;
+keyframeIndex = 0;
+function forwardClicked() {
+    if (isClicking) return;
+    console.log("FOEWARD");
+    isClicking = true;
+    //need some updateSVG code here
+    if(keyframeIndex < keyframes.length - 1) {
+        keyframeIndex++;
+        drawKeyframe(keyframeIndex);
+    } else {
+        keyframeIndex = 0;
+        drawKeyframe(keyframeIndex);
+    }
+    clickTimeout = setTimeout(() => {
+        isClicking = false;
+        clickTimeout = null;
+    }, 750);
+    }
+    
+function backwardClicked() {
+    if (isClicking) return;
+    console.log("BACK");
+    isClicking = true;
+    if(keyframeIndex > 0) {
+        keyframeIndex--;
+        drawKeyframe(keyframeIndex);
+    } else {
+        keyframeIndex = keyframes.length - 1;
+        drawKeyframe(keyframeIndex);
+    }
+    clickTimeout = setTimeout(() => {
+        isClicking = false;
+        clickTimeout = null;
+    }, 750);
+    }
+    
+function drawKeyframe(kfi) {
+    console.log(kfi);
+    let kf = keyframes[kfi]
+    
+    resetActiveLines();
+    
+    updateActiveVerse(kf.activeVerse);
+    
+    for(line of kf.activeLines) {
+        updateActiveLine(kf.activeVerse, line);
+    }
+    if(kf['svgUpdate'])kf['svgUpdate']();
+    }
+    
+function resetActiveLines() {
+    d3.selectAll(".line").classed("active-line", false)
+    }
+    
+function updateActiveVerse(id) {
+    d3.selectAll(".verse").classed("active-verse", false)
+    d3.select("#verse"+id).classed("active-verse", true)
+    scrollSideColumnToActiveVerse(id);
+    }
+    
+function updateActiveLine(vid, lid) {
+    let thisVerse = d3.select("#verse"+vid)
+    thisVerse.select("#line"+lid).classed("active-line", true)
+    scrollSideColumnToActiveVerse(vid);
+    }
+function scrollSideColumnToActiveVerse(id) {
+        var sideColumn = document.querySelector(".poetry-column-content");
+        console.log(sideColumn);
+        var activeVerse = document.getElementById("verse"+id);
+        
+        var verseRect = activeVerse.getBoundingClientRect();
+        var leftColumnRect = sideColumn.getBoundingClientRect();
+        
+        var desiredScrollTop = verseRect.top + sideColumn.scrollTop - leftColumnRect.top - (leftColumnRect.height - verseRect.height) / 2;
+        
+        sideColumn.scrollTo({
+            top: desiredScrollTop,
+            behavior: "smooth"
+        });
+        }
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Scrolling behaviors
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+document.getElementById("forward-button").addEventListener("click", forwardClicked);
+document.getElementById("backward-button").addEventListener("click", backwardClicked);
+let scrollTimeout = null;
+let isScrolling = false;
 
+window.addEventListener('wheel', (event) => {
+    if (isScrolling) {
+        return; // Ignore scroll events while scrolling is in progress
+    }
+
+    isScrolling = true;
+
+    if (event.deltaY > 0) { // Scrolling down
+        forwardClicked();
+    } else if (event.deltaY < 0) { // Scrolling up
+        backwardClicked();
+    }
+
+    scrollTimeout = setTimeout(() => {
+        isScrolling = false;
+        scrollTimeout = null;
+    }, 500);
+});
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Initialize the Event Listener
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         const data = await loadData();
