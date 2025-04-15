@@ -3,10 +3,10 @@
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 let keyframes = [
     { disabilityId: "all disability", verseId: "verse1", activeLines: [1], svgUpdate: bob },
-    { disabilityId: "all disability", verseId: "verse1", activeLines: [2] },
-    { disabilityId: "all disability", verseId: "verse1", activeLines: [3] },
-    { disabilityId: "mobility disability", verseId: "verse2", activeLines: [1] },
-    { disabilityId: "mobility disability", verseId: "verse2", activeLines: [2] },
+    { disabilityId: "all disability", verseId: "verse1", activeLines: [2], svgUpdate: steve},
+    { disabilityId: "all disability", verseId: "verse1", activeLines: [3], svgUpdate: jerry },
+    { disabilityId: "mobility disability", verseId: "verse2", activeLines: [1], svgUpdate: mobilityOne },
+    { disabilityId: "mobility disability", verseId: "verse2", activeLines: [2], svgUpdate: mobilityTwo },
     { disabilityId: "mobility disability", verseId: "verse2", activeLines: [3] },
     { disabilityId: "self-care disability", verseId: "verse3", activeLines: [1] },
     { disabilityId: "self-care disability", verseId: "verse3", activeLines: [2] },
@@ -265,14 +265,15 @@ function clearPieCharts(){
         .style("opacity", 0)
         .remove();
 
-    svg.select("#bob-group")
+    svg.selectAll("#label")
         .transition(150)
         .style("opacity", 0)
         .remove();
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// bob
+// bob, steve, and jerry (all disability pie charts)
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 async function bob() {
     // Add a g element, and add a text element within that.
     const bobGroup = svg.append("g").attr('id', 'bob-group');
@@ -292,7 +293,7 @@ async function bob() {
             let pDataExists = percentiles[dId]
             if(pDataExists) {
                 percentData = pDataExists.map((r) => [r.Response_Value, r.Percentage]);
-                displayPieCharts(d, d.data.id, percentData);
+                displayPieCharts(d, d.data.id, percentData, "JOB");
             }
 
         }
@@ -300,6 +301,160 @@ async function bob() {
     console.log("adding to be cleared");
     currentAnimations.add(clearPieCharts);
     return bob;
+}
+
+async function steve() {
+    // Add a g element, and add a text element within that.
+    const bobGroup = svg.append("g").attr('id', 'bob-group');
+    bobGroup.append("text")
+        .attr("id", "label")
+        .attr("x", width / 2)  // Set the x-coordinate
+        .attr("y", 25)  // Set the y-coordinate
+        .text("Income level among adults 18 years of age or older")
+        .attr("font-size", "35px") // make the text visible
+        .attr('text-anchor', 'middle')
+        .attr("fill", "black");
+    
+    let percentiles = await loadPercentileData("INCOMEN");
+    console.log(svg.selectAll("g"))
+    svg.selectAll("g").each((d) => { //changed from forEach to each
+        if (d) {
+            let dId = Object.keys(disabilityMapping).indexOf(d.data.id);
+            let pDataExists = percentiles[dId]
+            if(pDataExists) {
+                percentData = pDataExists.map((r) => [r.Response_Value, r.Percentage]);
+                displayPieCharts(d, d.data.id, percentData, "INCOMEN");
+            }
+
+        }
+    });
+    console.log("adding to be cleared");
+    
+    currentAnimations.add(clearPieCharts);
+    return bob;
+}
+
+async function jerry() {
+    // Add a g element, and add a text element within that.
+    const bobGroup = svg.append("g").attr('id', 'bob-group');
+    bobGroup.append("text")
+        .attr("id", "label")
+        .attr("x", width / 2)  // Set the x-coordinate
+        .attr("y", 25)  // Set the y-coordinate
+        .text("Urban/rural classification among adults 18 years of age or older")
+        .attr("font-size", "35px") // make the text visible
+        .attr('text-anchor', 'middle')
+        .attr("fill", "black");
+    
+    let percentiles = await loadPercentileData("METRO");
+    console.log(svg.selectAll("g"))
+    svg.selectAll("g").each((d) => { //changed from forEach to each
+        if (d) {
+            let dId = Object.keys(disabilityMapping).indexOf(d.data.id);
+            let pDataExists = percentiles[dId]
+            if(pDataExists) {
+                percentData = pDataExists.map((r) => [r.Response_Value, r.Percentage]);
+                displayPieCharts(d, d.data.id, percentData);
+            }
+
+        }
+    });
+    console.log("adding to be cleared");
+    
+    currentAnimations.add(clearPieCharts);
+    return bob;
+}
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// staging mobility arrangements
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+let mobilityOneRepositioned = false;
+let income_percentiles = {}
+async function mobilityOne() {
+    let percentiles = await loadPercentileData("INCOMEN");
+    console.log("percentiles");
+    console.log(percentiles);
+    console.log("nodes");
+    let dTypes = d3.selectAll("g")
+        .filter((d) => d)
+        .data().map((d) => {return d.data.id});
+    let dDict = {}
+    percentiles.forEach((d) => {
+        if (d.length > 0){
+            dDict[d[4].Disability_Type] = parseFloat(d[4].Percentage);
+            console.log(d[4].Disability_Type, d[4].Percentage)
+        }
+    });
+    let ranking = dTypes.sort((a, b) => - dDict[a] + dDict[b]);
+    console.log(ranking);
+    setTimeout(() => {
+        simulation.stop();
+     }, 2500);
+    
+     d3.selectAll("g").each(function(d) {
+        if(d && d.data.id){
+            let pos = ranking.indexOf(d.data.id);
+            let newX = pos * width / ranking.length;
+            console.log(newX);
+            d3.select(this)
+            .attr("transform", `translate(${newX}, ${d.y})`);
+            console.log("done");
+        }
+    });
+    mobilityOneRepositioned=true;
+    console.log("End");
+    income_percentiles = dDict;
+
+
+    percentiles = await loadPercentileData("INCOMEN");
+    console.log("percentiles");
+    console.log(percentiles);
+    console.log("nodes");
+    dTypes = d3.selectAll("g")
+        .filter((d) => d)
+        .data().map((d) => {return d.data.id});
+    dDict = {}
+    percentiles.forEach((d) => {
+        if (d.length > 0){
+            dDict[d[4].Disability_Type] = parseFloat(d[4].Percentage);
+            console.log(d[4].Disability_Type, d[4].Percentage)
+        }
+    });
+    ranking = dTypes.sort((a, b) => - dDict[a] + dDict[b]);
+    console.log(ranking);
+    setTimeout(() => {
+        simulation.stop();
+     }, 2500);
+    
+     d3.selectAll("g").each(function(d) {
+        if(d && d.data.id){
+            let pos = ranking.indexOf(d.data.id);
+            let newX = pos * width / ranking.length;
+            console.log(newX);
+            d3.select(this)
+            .attr("transform", `translate(${newX}, ${d.y})`);
+            console.log("done");
+        }
+    });
+    mobilityOneRepositioned=true;
+    console.log("End");
+    income_percentiles = dDict;
+}
+
+function mobilityTwo(){
+    d3.selectAll("g").filter((d) => d)
+    .transition(500)
+    .attr("translate", (d) => {
+        console.log(width - income_percentiles[d.data.id]);
+        return `(${d.x},${0.000005*(width - income_percentiles[d.data.id])})`;
+    });
+
+    // Optionally, you might want to re-apply a specific y-positioning force
+    // instead of relying on the default gravity/centering.
+    // For example, to keep them roughly in the middle:
+    // simulation.force("y", d3.forceY(height / 2).strength(0.1));
+    // simulation.alpha(0.3).restart();
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -377,7 +532,7 @@ function drawKeyframe(kfi) {
 // Pie Chart Functions
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-function displayPieCharts(data, disabilityId, pieData) { // Changed 'node' to 'data'
+function displayPieCharts(data, disabilityId, pieData, flag = null) { // Changed 'node' to 'data'
     const radius = data.r;
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -425,12 +580,17 @@ function displayPieCharts(data, disabilityId, pieData) { // Changed 'node' to 'd
     
         const legend = svg.append("g")
         .attr("class", "legend")
-        .attr("transform", `translate(${200}, 50)`); // Increased horizontal and vertical spacing
+        .attr("transform", `translate(${200}, 50)`);
 
-    const legendRectSize = 30; // Much larger rect size
-    const legendSpacing = 12;    // Increased spacing
-    const legendTextPadding = 10; // Increased padding
-
+    const legendRectSize = 30; 
+    const legendSpacing = 12;
+    const legendTextPadding = 10; 
+    if (flag == "INCOMEN"){
+        console.log("INCOME");
+        console.log(pieData.map((d) => d[0]));
+        let customOrder = [4, 0, 1, 2, 3, 5];
+        data_ready = customOrder.map(i => data_ready[i]);
+    }
     const legendItems = legend.selectAll(".legend-item")
         .data(data_ready)
         .enter()
