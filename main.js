@@ -111,19 +111,21 @@ function createSimulation(clickedData = null, countsForFirst = true) { //changed
     }
 
     simulation.force("special", alpha => { // Changed to use alpha
-        const heightFactor = 2;
+        const heightFactor = 1.5; // Changed from 2 to 1.5 to position bubbles lower
+        const verticalOffset = 100; // Additional offset to move bubbles down
+        
         simulation.nodes().forEach(node => {
             if (clickedData && node.data.id === clickedData.id) { //use clickedData
                 node.fx = width / 2;
-                node.fy = height / heightFactor;
+                node.fy = (height / heightFactor) + verticalOffset;
             } else if (isFirstClick && node.data.id === "No Disability") {
                 node.fx = width / 2;
-                node.fy = height / heightFactor;
+                node.fy = (height / heightFactor) + verticalOffset;
             }
             else {
                 node.fx = null;
-                const targetY = node.y + 10;
-                const bottomBoundary = height - node.r;
+                const targetY = node.y + 10 + verticalOffset;
+                const bottomBoundary = height - node.r - 20; // Keep a margin at the bottom
                 node.fy = targetY > bottomBoundary ? bottomBoundary : targetY;
             }
 
@@ -268,7 +270,8 @@ function clearPieCharts(){
         .style("opacity", 0)
         .remove();
 
-    svg.selectAll("#label")
+    // Remove all labels
+    svg.selectAll("#label, #label-line2")
         .transition(150)
         .style("opacity", 0)
         .remove();
@@ -346,8 +349,19 @@ async function jerry() {
         .attr("id", "label")
         .attr("x", width / 2)  // Set the x-coordinate
         .attr("y", 25)  // Set the y-coordinate
-        .text("Urban/rural classification among adults 18 years of age or older")
+        .text("Urban/rural classification among adults")
         .attr("font-size", "35px") // make the text visible
+        .attr('text-anchor', 'middle')
+        .attr("fill", "black")
+        .attr("font-family", "Montserrat");
+    
+    // Add a second line of text for long titles
+    bobGroup.append("text")
+        .attr("id", "label-line2")
+        .attr("x", width / 2)
+        .attr("y", 65)  // Position below the first line
+        .text("18 years of age or older")
+        .attr("font-size", "35px")
         .attr('text-anchor', 'middle')
         .attr("fill", "black")
         .attr("font-family", "Montserrat");
@@ -410,8 +424,19 @@ async function claude() {
         .attr("id", "label")
         .attr("x", width / 2)  // Set the x-coordinate
         .attr("y", 25)  // Set the y-coordinate
-        .text("Mental health days taken among adults 18 years of age or older")
+        .text("Mental health days taken among adults")
         .attr("font-size", "35px") // make the text visible
+        .attr('text-anchor', 'middle')
+        .attr("fill", "black")
+        .attr("font-family", "Montserrat");
+        
+    // Add a second line of text for long titles
+    bobGroup.append("text")
+        .attr("id", "label-line2")
+        .attr("x", width / 2)
+        .attr("y", 65)  // Position below the first line
+        .text("18 years of age or older")
+        .attr("font-size", "35px")
         .attr('text-anchor', 'middle')
         .attr("fill", "black")
         .attr("font-family", "Montserrat");
@@ -620,7 +645,7 @@ function displayPieCharts(data, disabilityId, pieData, flag = null) { // Changed
     
         const legend = svg.append("g")
         .attr("class", "legend")
-        .attr("transform", `translate(${200}, 50)`)
+        .attr("transform", `translate(${200}, 100)`) // Moved down to avoid overlapping with the title
         .attr("font-family", "Montserrat");
 
     const legendRectSize = 23; 
@@ -690,12 +715,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById("reset-button").addEventListener("click", function(d) {
             //reset everything
             activeDisability = null;
-            visibleVerseIndex = -1;
             isFirstClick=true;
             previousVerseIndex=0;
             svg.selectAll().remove();
             createSimulation();
-            scrollToKeyframe(-1);
+            
+            // Instead of scrollToKeyframe(-1), go directly to the first verse and line
+            visibleVerseIndex = 0;
+            scrollToKeyframe(0);
         });
 
 
