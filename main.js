@@ -90,10 +90,9 @@ function createBubbleChart(data) {
         .text(d => d);
 
     bubbleData = data;
-    createSimulation(); //initial call, pass null
 }
 
-function createSimulation(clickedData = null) { //changed
+function createSimulation(clickedData = null, countsForFirst=true) { //changed
     const width = 1000;
     const height = width;
     const margin = 1;
@@ -104,7 +103,7 @@ function createSimulation(clickedData = null) { //changed
     simulation = d3.forceSimulation(root.leaves())
         .force("collision", d3.forceCollide().radius(d => d.r + collisionRadius));
 
-    if (isFirstClick) {
+    if (isFirstClick && countsForFirst) {
         simulation.force("center", d3.forceCenter(width / 2, height / 2));
         isFirstClick = false;
     }
@@ -198,11 +197,11 @@ function scrollToKeyframe(index) {
 
             // Find the index of the *first line* of this verse.  This is crucial.
             const allLines = d3.selectAll(".line").nodes();
-            const firstLineOfVerse = activeVerseElement.select(".line:nth-child(1)").node();
+            const firstLineOfVerse = 3 * Math.floor(index / 3) + index % 3;
             const indexOfFirstLine = allLines.indexOf(firstLineOfVerse);
-
-            if (indexOfFirstLine !== -1) {
-                visibleVerseIndex = indexOfFirstLine;
+            if (firstLineOfVerse !== -1) {
+                console.log("SHUT UP");
+                visibleVerseIndex = firstLineOfVerse;
                 const verse = activeVerseElement.select(".line").node();
                 const poetryColumn = verse.parentNode;
                 poetryColumn.scrollTop = verse.offsetTop - poetryColumn.offsetTop - (poetryColumn.offsetHeight - verse.offsetHeight) / 2;
@@ -244,6 +243,10 @@ function scrollToVerse(index) {
         const poetryColumn = verse.parentNode;
         poetryColumn.scrollTop = verse.offsetTop - poetryColumn.offsetTop - (poetryColumn.offsetHeight - verse.offsetHeight) / 2;
         drawKeyframe(index);
+        if(index !== 0 && (index % 3 == 0 || index == allVerses.size() - 1)){
+            isFirstClick=false;
+            scrollToKeyframe(index);
+        }
         visibleVerseIndex = index;
     }
 }
@@ -324,7 +327,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const data = await loadData();
         bubbleData = data;
         createBubbleChart(data); //initial call
-       // createSimulation(); // call is made in createBubbleChart
+        createSimulation(); // call is made in createBubbleChart
         document.getElementById("forward-button").addEventListener("click", forwardClicked);
         document.getElementById("backward-button").addEventListener("click", backwardClicked);
 
