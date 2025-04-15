@@ -41,6 +41,7 @@ async function loadData() {
 let simulation;
 let bubbleData;
 let previousCenterNodeId = "No Disability"; // Track the previous center node
+let previousVerseIndex = 0;
 let isFirstClick = true;
 let svg; // Make svg a global variable
 
@@ -158,8 +159,7 @@ const disabilityMapping = {
 // Module Globals
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 let activeDisability = null;
-let keyframeIndex = 0;
-let visibleVerseIndex = 0;
+let visibleVerseIndex = -1;
 const allVerses = d3.selectAll(".line");
 let isClicking = false;
 let clickTimeout = null;
@@ -186,40 +186,43 @@ function findFirstKeyframeByDisability(disabilityId) {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 function scrollToKeyframe(index) {
     if (index !== null && index >= 0 && index < keyframes.length) {
+        console.log("moving to")
+        console.log(index)
+
         const kf = keyframes[index];
         d3.selectAll(".verse").classed("active-verse", false);
         d3.selectAll(".line").classed("active-line", false);
 
         const activeVerseElement = d3.select(`#${kf.verseId}`);
+        const firstLineOfVerse = 3 * Math.floor(index / 3);
         if (!activeVerseElement.empty()) {
             activeVerseElement.classed("active-verse", true);
+            console.log("FLO")
+            console.log(activeVerseElement.select(`.line:nth-child(${kf.activeLines[0] + 1})`));
             activeVerseElement.select(`.line:nth-child(${kf.activeLines[0] + 1})`).classed("active-line", true);
 
             // Find the index of the *first line* of this verse.  This is crucial.
-            const allLines = d3.selectAll(".line").nodes();
-            const firstLineOfVerse = 3 * Math.floor(index / 3) + index % 3;
-            const indexOfFirstLine = allLines.indexOf(firstLineOfVerse);
             if (firstLineOfVerse !== -1) {
                 console.log("SHUT UP");
-                visibleVerseIndex = firstLineOfVerse;
                 const verse = activeVerseElement.select(".line").node();
                 const poetryColumn = verse.parentNode;
                 poetryColumn.scrollTop = verse.offsetTop - poetryColumn.offsetTop - (poetryColumn.offsetHeight - verse.offsetHeight) / 2;
             }
         }
-        keyframeIndex = index;
+        console.log("COMPARE OLD TO NEW");
+        console.log(previousVerseIndex);
+        console.log(firstLineOfVerse);
+        console.log(firstLineOfVerse == previousVerseIndex);
+        if(firstLineOfVerse !== previousVerseIndex){
+            const currentDisabilityId = kf.disabilityId;
+            const targetData = bubbleData.find(d => disabilityMapping[d.id] === currentDisabilityId);
+            simulation?.stop();
+            createSimulation(targetData); // Pass targetData
 
-        //  NEW FORCE CODE
-        const currentDisabilityId = kf.disabilityId;
-        const targetData = bubbleData.find(d => disabilityMapping[d.id] === currentDisabilityId);
-
-        simulation?.stop();
-        createSimulation(targetData); // Pass targetData
-
-        simulation.alphaTarget(0.3).restart();
-        simulation.transitionDuration = 250;
-        isFirstClick = false; //set to false after first click
-        //  NEW FORCE CODE END
+            simulation.alphaTarget(0.3).restart();
+            simulation.transitionDuration = 250;
+            previousVerseIndex = firstLineOfVerse;
+        }
     }
 }
 
@@ -230,26 +233,11 @@ function handleBubbleClick(event, d) {
     const disabilityId = d.data.id;
     const firstKeyframeIndex = findFirstKeyframeByDisability(disabilityId);
     if (firstKeyframeIndex !== null) {
+        visibleVerseIndex = firstKeyframeIndex;
         scrollToKeyframe(firstKeyframeIndex);
     }
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Verse Scroller
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-function scrollToVerse(index) {
-    if (index >= 0 && index < allVerses.size()) {
-        const verse = allVerses.nodes()[index];
-        const poetryColumn = verse.parentNode;
-        poetryColumn.scrollTop = verse.offsetTop - poetryColumn.offsetTop - (poetryColumn.offsetHeight - verse.offsetHeight) / 2;
-        drawKeyframe(index);
-        if(index !== 0 && (index % 3 == 0 || index == allVerses.size() - 1)){
-            isFirstClick=false;
-            scrollToKeyframe(index);
-        }
-        visibleVerseIndex = index;
-    }
-}
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Button Click Handlers
@@ -259,10 +247,10 @@ function forwardClicked() {
     isClicking = true;
     if (visibleVerseIndex < allVerses.size() - 1) {
         visibleVerseIndex++;
-        scrollToVerse(visibleVerseIndex);
+        scrollToKeyframe(visibleVerseIndex);
     } else {
         visibleVerseIndex = 0;
-        scrollToVerse(visibleVerseIndex);
+        scrollToKeyframe(0);
     }
     clickTimeout = setTimeout(() => {
         isClicking = false;
@@ -275,10 +263,10 @@ function backwardClicked() {
     isClicking = true;
     if (visibleVerseIndex > 0) {
         visibleVerseIndex--;
-        scrollToVerse(visibleVerseIndex);
+        scrollToKeyframe(visibleVerseIndex);
     } else {
         visibleVerseIndex = allVerses.size() - 1;
-        scrollToVerse(visibleVerseIndex);
+        scrollToKeyframe(visibleVerseIndex);
     }
     clickTimeout = setTimeout(() => {
         isClicking = false;
@@ -331,8 +319,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById("forward-button").addEventListener("click", forwardClicked);
         document.getElementById("backward-button").addEventListener("click", backwardClicked);
 
-        scrollToVerse(0);
-        drawKeyframe(0);
 
     } catch (error) {
         console.error('Error loading visualization:', error);
