@@ -380,6 +380,35 @@ function displayPieCharts(data, disabilityId, pieData) { // Changed 'node' to 'd
         .style("text-anchor", "middle")
         .style("font-size", radius * 0.15)
     
+        const legend = svg.append("g")
+        .attr("class", "legend")
+        .attr("transform", `translate(${width - 200}, 50)`); // Increased horizontal and vertical spacing
+
+    const legendRectSize = 30; // Much larger rect size
+    const legendSpacing = 12;    // Increased spacing
+    const legendTextPadding = 10; // Increased padding
+
+    const legendItems = legend.selectAll(".legend-item")
+        .data(data_ready)
+        .enter()
+        .append("g")
+        .attr("class", "legend-item")
+        .attr("transform", (d, i) => `translate(0, ${i * (legendRectSize + legendSpacing)})`);
+
+    legendItems.append("rect")
+        .attr("width", legendRectSize)
+        .attr("height", legendRectSize)
+        .style("fill", (d) => color(d.data[0])) // Use d.data[0]
+        .style("stroke", "black")
+        .style("stroke-width", 2); // Increased stroke width
+
+    legendItems.append("text")
+        .attr("x", legendRectSize + legendTextPadding) // Added padding
+        .attr("y", legendRectSize - legendSpacing / 2)
+        .style("font-size", "18px") // Larger font size
+        .style("fill", "#333")       // Darker text color
+        .style("font-weight", "bold") // Make the text bold
+        .text((d) => d.data[0]); // Use d.data[0]
 
 }
 
