@@ -132,7 +132,7 @@ footer {
 
 .arrow-button {
     padding: 8px 16px;
-    margin: 0 15px;
+    margin: 0 8px;
     font-size: 1em;
     cursor: pointer;
     background-color: rgb(208, 199, 194);
@@ -143,4 +143,15 @@ footer {
 
 .arrow-button:hover {
     background-color: #ddd;
+}
+
+.button {
+    padding: 8px 16px;
+    margin: 0 40px;
+    font-size: 1em;
+    font-family: "Montserrat";
+    background-color: rgb(208, 199, 194);
+    color: rgb(70, 69, 69);
+    border: none;
+    border-radius: 5px;
 }
