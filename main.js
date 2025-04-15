@@ -88,7 +88,8 @@ function createBubbleChart(data) {
         .join("tspan")
         .attr("x", 0)
         .attr("y", (d, i, nodes) => `${i - nodes.length / 2 + 0.8}em`)
-        .text(d => d);
+        .text(d => d)
+        .attr("font-family", "Montserrat");
 
     bubbleData = data;
 }
@@ -284,7 +285,8 @@ async function bob() {
         .text("Employment status among \n adults 18 years of age or older")
         .attr("font-size", "35px") // make the text visible
         .attr('text-anchor', 'middle')
-        .attr("fill", "black");
+        .attr("fill", "black")
+        .attr("font-family", "Montserrat");
     let percentiles = await loadPercentileData("JOB");
     console.log(svg.selectAll("g"))
     svg.selectAll("g").each((d) => { //changed from forEach to each
@@ -313,7 +315,8 @@ async function steve() {
         .text("Income level among adults 18 years of age or older")
         .attr("font-size", "35px") // make the text visible
         .attr('text-anchor', 'middle')
-        .attr("fill", "black");
+        .attr("fill", "black")
+        .attr("font-family", "Montserrat");
     
     let percentiles = await loadPercentileData("INCOMEN");
     console.log(svg.selectAll("g"))
@@ -344,7 +347,8 @@ async function jerry() {
         .text("Urban/rural classification among adults 18 years of age or older")
         .attr("font-size", "35px") // make the text visible
         .attr('text-anchor', 'middle')
-        .attr("fill", "black");
+        .attr("fill", "black")
+        .attr("font-family", "Montserrat");
     
     let percentiles = await loadPercentileData("METRO");
     console.log(svg.selectAll("g"))
@@ -375,7 +379,8 @@ async function sophia() {
         .text("Education levels among adults 18 years of age or older")
         .attr("font-size", "35px") // make the text visible
         .attr('text-anchor', 'middle')
-        .attr("fill", "black");
+        .attr("fill", "black")
+        .attr("font-family", "Montserrat");
     
     let percentiles = await loadPercentileData("EDUCATE");
     console.log(svg.selectAll("g"))
@@ -577,10 +582,12 @@ function displayPieCharts(data, disabilityId, pieData, flag = null) { // Changed
         .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
         .attr("text-anchor", "middle")
         .style("font-size", radius * 0.15)
+        .attr("font-family", "Montserrat");
     
         const legend = svg.append("g")
         .attr("class", "legend")
-        .attr("transform", `translate(${200}, 50)`);
+        .attr("transform", `translate(${200}, 50)`)
+        .attr("font-family", "Montserrat");
 
     const legendRectSize = 23; 
     const legendSpacing = 12;
