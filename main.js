@@ -234,6 +234,10 @@ function scrollToKeyframe(index) {
             simulation.transitionDuration = 250;
             previousVerseIndex = firstLineOfVerse;
         }
+        
+        // Update node opacities based on disability type and verse
+        updateNodeOpacities(kf.disabilityId);
+        
         clearAnimations();
         if (kf['svgUpdate']) kf['svgUpdate']();
     }
@@ -596,7 +600,7 @@ function drawKeyframe(kfi) {
 // Pie Chart Functions
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-function displayPieCharts(data, disabilityId, pieData, flag = null) { // Changed 'node' to 'data'
+function displayPieCharts(data, disabilityId, pieData, flag = null) { 
     const radius = data.r;
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -612,6 +616,15 @@ function displayPieCharts(data, disabilityId, pieData, flag = null) { // Changed
         .attr("id", disabilityId.replaceAll(" ","_") + "_pie")
         .attr("transform", `translate(${data.x}, ${data.y})`); // Initially center at the node's center
 
+    // gets current disability
+    const currentKeyframe = keyframes[visibleVerseIndex] || { disabilityId: "all disability" };
+    const currentDisabilityId = currentKeyframe.disabilityId;
+    
+    // change opacity based on disability
+    const pieOpacity = currentDisabilityId === "all disability" || 
+                      disabilityMapping[disabilityId] === currentDisabilityId || 
+                      disabilityId === "No Disability" ? 0.7 : 0.1;
+
     // Create the pie slices within this group
     pieGroup
         .selectAll('path')
@@ -624,7 +637,7 @@ function displayPieCharts(data, disabilityId, pieData, flag = null) { // Changed
         .style("stroke-width", "2px")
         .style("opacity", 0)
         .transition(500)
-        .style("opacity", 0.7);
+        .style("opacity", pieOpacity);
     
     pieGroup
         .selectAll('text')
@@ -641,7 +654,8 @@ function displayPieCharts(data, disabilityId, pieData, flag = null) { // Changed
         .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
         .attr("text-anchor", "middle")
         .style("font-size", radius * 0.15)
-        .attr("font-family", "Montserrat");
+        .attr("font-family", "Montserrat")
+        .style("opacity", pieOpacity); // sets proper pie opacity
     
         const legend = svg.append("g")
         .attr("class", "legend")
@@ -704,12 +718,43 @@ window.addEventListener('wheel', (event) => {
     }, 500);
 });
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Node Opacity Control Function
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+function updateNodeOpacities(currentDisabilityId) {
+    const circles = svg.selectAll("circle");
+    
+    // "all disability" verse highlights all nodes
+    if (currentDisabilityId === "all disability") {
+        circles.transition().duration(300).attr("fill-opacity", 0.7);
+        return;
+    }
+    
+    // only keep the current disability type and "No Disability" at high opacity
+    circles.each(function(d) {
+        const nodeId = d.data.id;
+        const nodeDisabilityType = disabilityMapping[nodeId];
+        const isNoDisability = (nodeId === "No Disability");
+        const isCurrentDisability = (nodeDisabilityType === currentDisabilityId);
+        
+        d3.select(this)
+            .transition()
+            .duration(300)
+            .attr("fill-opacity", isCurrentDisability || isNoDisability ? 0.7 : 0.1);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         const data = await loadData();
         bubbleData = data;
         createBubbleChart(data); //initial call
         createSimulation(); // call is made in createBubbleChart
+        
+        // init opacity
+        visibleVerseIndex = 0;
+        updateNodeOpacities("all disability");
+        
         document.getElementById("forward-button").addEventListener("click", forwardClicked);
         document.getElementById("backward-button").addEventListener("click", backwardClicked);
         document.getElementById("reset-button").addEventListener("click", function(d) {
