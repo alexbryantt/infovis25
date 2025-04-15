@@ -377,7 +377,7 @@ async function mobilityOne() {
     console.log(percentiles);
     console.log("nodes");
     let dTypes = d3.selectAll("g")
-        .filter((d) => d)
+        .filter((d) => (d && d.data.id))
         .data().map((d) => {return d.data.id});
     let dDict = {}
     percentiles.forEach((d) => {
@@ -401,7 +401,7 @@ async function mobilityOne() {
                 console.log("done");
             }
         });
-     }, 1250);
+     }, 1500);
     
      
     mobilityOneRepositioned=true;
