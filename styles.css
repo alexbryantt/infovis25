@@ -125,7 +125,7 @@ header {
 }
 
 .active-verse .line {
-    color: rgb(208, 199, 194);
+    color: rgb(70, 69, 69);
 }
 
 .active-line {
@@ -170,5 +170,10 @@ footer {
     font-family: "Montserrat";
     color: white;
     margin-bottom: -70px;
-    margin-left: 2em;
+    margin-left: 1em;
+    border: solid white 1px;
+    border-radius: 5px;
+    padding: 5px;
+    padding-left: 20px;
+    width: 395px;
 }
