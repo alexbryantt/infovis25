@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
 body {
-    background-color: rgb(90, 89, 89);
+    background-color: rgb(135, 134, 134);
     overflow: hidden; /* Disable overall scrolling */
     margin: 0;
     height: 100vh;
