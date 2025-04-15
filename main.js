@@ -551,7 +551,7 @@ function displayPieCharts(data, disabilityId, pieData, flag = null) { // Changed
         .attr("class", "legend")
         .attr("transform", `translate(${200}, 50)`);
 
-    const legendRectSize = 30; 
+    const legendRectSize = 23; 
     const legendSpacing = 12;
     const legendTextPadding = 10; 
     if (flag == "INCOMEN"){
