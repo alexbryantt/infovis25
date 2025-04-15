@@ -229,10 +229,47 @@ function scrollToKeyframe(index) {
             simulation.transitionDuration = 250;
             previousVerseIndex = firstLineOfVerse;
         }
+        clearAnimations();
         if (kf['svgUpdate']) kf['svgUpdate']();
     }
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Clearing stuff
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+let currentAnimations = new Set();
+function clearAnimations(){
+    // Clear all animations
+    console.log("currentAnimations");
+    console.log(currentAnimations);
+    // Loop through the currentAnimations set and call each function
+    currentAnimations.forEach(key =>  {
+        console.log(key);
+        if (key) {
+            key();
+        }
+    });
+    currentAnimations = new Set();
+}
+function clearPieCharts(){
+    // Remove all pie charts
+    console.log("Clear pie charts");
+    svg.selectAll("g[id$='_pie']")
+    .transition(150)
+    .style("opacity", 0)
+    .remove();
+
+    // Remove the legend
+    svg.selectAll(".legend")
+        .transition(150)
+        .style("opacity", 0)
+        .remove();
+
+    svg.select("#bob-group")
+        .transition(150)
+        .style("opacity", 0)
+        .remove();
+}
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // bob
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -242,20 +279,26 @@ async function bob() {
     bobGroup.append("text")
         .attr("id", "label")
         .attr("x", width / 2)  // Set the x-coordinate
-        .attr("y", 50)  // Set the y-coordinate
-        .text("HELP")
-        .attr("font-size", "50px") // make the text visible
+        .attr("y", 25)  // Set the y-coordinate
+        .text("Employment status among \n adults 18 years of age or older")
+        .attr("font-size", "35px") // make the text visible
+        .attr('text-anchor', 'middle')
         .attr("fill", "black");
     let percentiles = await loadPercentileData("JOB");
     console.log(svg.selectAll("g"))
     svg.selectAll("g").each((d) => { //changed from forEach to each
         if (d) {
             let dId = Object.keys(disabilityMapping).indexOf(d.data.id);
-            let percentData = percentiles[dId].map((r) => [r.Response_Value, r.Percentage]);
-            displayPieCharts(d, d.data.id, percentData);
+            let pDataExists = percentiles[dId]
+            if(pDataExists) {
+                percentData = pDataExists.map((r) => [r.Response_Value, r.Percentage]);
+                displayPieCharts(d, d.data.id, percentData);
+            }
 
         }
     });
+    console.log("adding to be cleared");
+    currentAnimations.add(clearPieCharts);
     return bob;
 }
 
@@ -377,12 +420,12 @@ function displayPieCharts(data, disabilityId, pieData) { // Changed 'node' to 'd
             } else return `${init.toFixed(2)}%`;
         })
         .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
-        .style("text-anchor", "middle")
+        .attr("text-anchor", "middle")
         .style("font-size", radius * 0.15)
     
         const legend = svg.append("g")
         .attr("class", "legend")
-        .attr("transform", `translate(${width - 200}, 50)`); // Increased horizontal and vertical spacing
+        .attr("transform", `translate(${200}, 50)`); // Increased horizontal and vertical spacing
 
     const legendRectSize = 30; // Much larger rect size
     const legendSpacing = 12;    // Increased spacing
@@ -407,7 +450,8 @@ function displayPieCharts(data, disabilityId, pieData) { // Changed 'node' to 'd
         .attr("y", legendRectSize - legendSpacing / 2)
         .style("font-size", "18px") // Larger font size
         .style("fill", "#333")       // Darker text color
-        .style("font-weight", "bold") // Make the text bold
+        .style("font-weight", "bold")
+        .style("text-anchor", "start")
         .text((d) => d.data[0]); // Use d.data[0]
 
 }
@@ -442,6 +486,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         createSimulation(); // call is made in createBubbleChart
         document.getElementById("forward-button").addEventListener("click", forwardClicked);
         document.getElementById("backward-button").addEventListener("click", backwardClicked);
+        document.getElementById("reset-button").addEventListener("click", function(d) {
+            //reset everything
+            activeDisability = null;
+            visibleVerseIndex = -1;
+            isFirstClick=true;
+            previousVerseIndex=0;
+            svg.selectAll().remove();
+            createSimulation();
+            scrollToKeyframe(-1);
+        });
 
 
     } catch (error) {
