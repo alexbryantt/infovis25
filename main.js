@@ -204,13 +204,15 @@ function scrollToKeyframe(index) {
         const firstLineOfVerse = 3 * Math.floor(index / 3);
         if (!activeVerseElement.empty()) {
             activeVerseElement.classed("active-verse", true);
-            console.log("FLO")
-            console.log(activeVerseElement.select(`.line:nth-child(${kf.activeLines[0] + 1})`));
-            activeVerseElement.select(`.line:nth-child(${kf.activeLines[0] + 1})`).classed("active-line", true);
-
+            
+            // Get the correct line based on the activeLines array in the keyframe
+            // The line elements start at index 2 (after the title), so we add 1 to the activeLines value
+            const lineIndex = kf.activeLines[0] + 1;
+            const lineSelector = `#${kf.verseId} .line:nth-of-type(${lineIndex})`;
+            d3.select(lineSelector).classed("active-line", true);
+            
             // Find the index of the *first line* of this verse.  This is crucial.
             if (firstLineOfVerse !== -1) {
-                console.log("SHUT UP");
                 const verse = activeVerseElement.select(".line").node();
                 const poetryColumn = verse.parentNode;
                 poetryColumn.scrollTop = verse.offsetTop - poetryColumn.offsetTop - (poetryColumn.offsetHeight - verse.offsetHeight) / 2;

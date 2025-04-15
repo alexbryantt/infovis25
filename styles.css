@@ -54,7 +54,7 @@ header {
 }
 
 .poetry-column {
-    flex: 1;
+    flex: 1.5;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -67,12 +67,14 @@ header {
 
 .poetry-column.left {
     text-align: right;
-    padding-right: 30px;
+    padding-right: 40px;
+    margin-right: 20px;
 }
 
 .poetry-column.right {
     text-align: left;
-    padding-left: 30px;
+    padding-left: 40px;
+    margin-left: 20px;
 }
 
 .bubble-chart-container {
@@ -101,6 +103,8 @@ header {
     font-family: "Montserrat";
     color: rgb(208, 199, 194);
     margin: 10px 0;
+    width: 260px; /* Fixed width for all verses */
+    box-sizing: border-box; /* Include padding and border in the width */
 }
 
 .line-i {
@@ -115,12 +119,18 @@ header {
 }
 
 .active-verse {
-    font-weight: 600;
-    color: #f0f8ff;
+    border: 1px solid white;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.active-verse .line {
+    color: rgb(208, 199, 194);
 }
 
 .active-line {
-    color: #a9b9c9;
+    color: #ffffff;
+    font-weight: bold;
 }
 
 footer {
