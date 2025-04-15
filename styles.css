@@ -165,3 +165,10 @@ footer {
     border: none;
     border-radius: 5px;
 }
+
+.site-title {
+    font-family: "Montserrat";
+    color: white;
+    margin-bottom: -70px;
+    margin-left: 2em;
+}
