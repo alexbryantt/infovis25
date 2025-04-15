@@ -11,9 +11,9 @@ let keyframes = [
     { disabilityId: "self-care disability", verseId: "verse3", activeLines: [1], svgUpdate: sophia },
     { disabilityId: "self-care disability", verseId: "verse3", activeLines: [2], svgUpdate: sophia },
     { disabilityId: "self-care disability", verseId: "verse3", activeLines: [3], svgUpdate: sophia },
-    { disabilityId: "cognitive disability", verseId: "verse4", activeLines: [1] },
-    { disabilityId: "cognitive disability", verseId: "verse4", activeLines: [2] },
-    { disabilityId: "cognitive disability", verseId: "verse4", activeLines: [3] },
+    { disabilityId: "cognitive disability", verseId: "verse4", activeLines: [1], svgUpdate: claude },
+    { disabilityId: "cognitive disability", verseId: "verse4", activeLines: [2], svgUpdate: claude},
+    { disabilityId: "cognitive disability", verseId: "verse4", activeLines: [3], svgUpdate: claude},
     { disabilityId: "auditory disability", verseId: "verse5", activeLines: [1] },
     { disabilityId: "auditory disability", verseId: "verse5", activeLines: [2] },
     { disabilityId: "auditory disability", verseId: "verse5", activeLines: [3] },
@@ -383,6 +383,38 @@ async function sophia() {
         .attr("font-family", "Montserrat");
     
     let percentiles = await loadPercentileData("EDUCATE");
+    console.log(svg.selectAll("g"))
+    svg.selectAll("g").each((d) => { //changed from forEach to each
+        if (d) {
+            let dId = Object.keys(disabilityMapping).indexOf(d.data.id);
+            let pDataExists = percentiles[dId]
+            if(pDataExists) {
+                percentData = pDataExists.map((r) => [r.Response_Value, r.Percentage]);
+                displayPieCharts(d, d.data.id, percentData);
+            }
+
+        }
+    });
+    console.log("adding to be cleared");
+    
+    currentAnimations.add(clearPieCharts);
+    return bob;
+}
+
+async function claude() {
+    // Add a g element, and add a text element within that.
+    const bobGroup = svg.append("g").attr('id', 'bob-group');
+    bobGroup.append("text")
+        .attr("id", "label")
+        .attr("x", width / 2)  // Set the x-coordinate
+        .attr("y", 25)  // Set the y-coordinate
+        .text("Mental health days taken among adults 18 years of age or older")
+        .attr("font-size", "35px") // make the text visible
+        .attr('text-anchor', 'middle')
+        .attr("fill", "black")
+        .attr("font-family", "Montserrat");
+    
+    let percentiles = await loadPercentileData("MHDAYS");
     console.log(svg.selectAll("g"))
     svg.selectAll("g").each((d) => { //changed from forEach to each
         if (d) {
