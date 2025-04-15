@@ -2,7 +2,7 @@
 // Data: Keyframe Definitions
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 let keyframes = [
-    { disabilityId: "all disability", verseId: "verse1", activeLines: [1] },
+    { disabilityId: "all disability", verseId: "verse1", activeLines: [1], svgUpdate: bob },
     { disabilityId: "all disability", verseId: "verse1", activeLines: [2] },
     { disabilityId: "all disability", verseId: "verse1", activeLines: [3] },
     { disabilityId: "mobility disability", verseId: "verse2", activeLines: [1] },
@@ -44,10 +44,10 @@ let previousCenterNodeId = "No Disability"; // Track the previous center node
 let previousVerseIndex = 0;
 let isFirstClick = true;
 let svg; // Make svg a global variable
+const width = 1000;
+const height = width;
 
 function createBubbleChart(data) {
-    const width = 1000;
-    const height = width;
     const margin = 1;
     const color = d3.scaleOrdinal(d3.schemeTableau10);
 
@@ -55,7 +55,7 @@ function createBubbleChart(data) {
         .size([width - margin * 10, height - margin * 10])
         .padding(4);
 
-    const root = pack(d3.hierarchy({children: data})
+    const root = pack(d3.hierarchy({ children: data })
         .sum(d => d.value));
 
     //Select or Create the SVG
@@ -77,7 +77,7 @@ function createBubbleChart(data) {
     const circle = node.append("circle")
         .attr("fill-opacity", 0.7)
         .attr("fill", d => color(d.data.id))
-        .attr("r", d => d.r)
+        .attr("r", d => d.r / 1)
         .on("click", handleBubbleClick);
 
     const text = node.append("text")
@@ -93,7 +93,7 @@ function createBubbleChart(data) {
     bubbleData = data;
 }
 
-function createSimulation(clickedData = null, countsForFirst=true) { //changed
+function createSimulation(clickedData = null, countsForFirst = true) { //changed
     const width = 1000;
     const height = width;
     const margin = 1;
@@ -102,7 +102,7 @@ function createSimulation(clickedData = null, countsForFirst=true) { //changed
     const root = d3.pack().size([width - margin * 10, height - margin * 10]).padding(4)(d3.hierarchy({ children: bubbleData }).sum(d => d.value));
 
     simulation = d3.forceSimulation(root.leaves())
-        .force("collision", d3.forceCollide().radius(d => d.r + collisionRadius));
+        .force("collision", d3.forceCollide().radius(d => d.r + collisionRadius).strength(1));
 
     if (isFirstClick && countsForFirst) {
         simulation.force("center", d3.forceCenter(width / 2, height / 2));
@@ -135,6 +135,11 @@ function createSimulation(clickedData = null, countsForFirst=true) { //changed
     simulation.on("tick", () => {
         const node = svg.selectAll("g").data(root.leaves());
         node.attr("transform", d => `translate(${d.x},${d.y})`);
+        node.data().forEach((d) => {
+            let dId = d.data.id;
+            let pie = svg.select("#" + dId.replaceAll(" ","_") + "_pie");
+            pie.attr("transform", () => `translate(${d.x},${d.y})`);
+        });
     });
 
     simulation.alphaTarget(0.3).restart(); // Add this line to start the simulation
@@ -165,6 +170,7 @@ let isClicking = false;
 let clickTimeout = null;
 let scrollTimeout = null;
 let isScrolling = false;
+let pieChart; // Declare pieChart globally
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Keyframe Lookup Function
@@ -213,7 +219,7 @@ function scrollToKeyframe(index) {
         console.log(previousVerseIndex);
         console.log(firstLineOfVerse);
         console.log(firstLineOfVerse == previousVerseIndex);
-        if(firstLineOfVerse !== previousVerseIndex){
+        if (firstLineOfVerse !== previousVerseIndex) {
             const currentDisabilityId = kf.disabilityId;
             const targetData = bubbleData.find(d => disabilityMapping[d.id] === currentDisabilityId);
             simulation?.stop();
@@ -223,9 +229,45 @@ function scrollToKeyframe(index) {
             simulation.transitionDuration = 250;
             previousVerseIndex = firstLineOfVerse;
         }
+        if (kf['svgUpdate']) kf['svgUpdate']();
     }
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// bob
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+async function bob() {
+    // Add a g element, and add a text element within that.
+    const bobGroup = svg.append("g").attr('id', 'bob-group');
+    bobGroup.append("text")
+        .attr("id", "label")
+        .attr("x", width / 2)  // Set the x-coordinate
+        .attr("y", 50)  // Set the y-coordinate
+        .text("HELP")
+        .attr("font-size", "50px") // make the text visible
+        .attr("fill", "black");
+    let percentiles = await loadPercentileData("JOB");
+    console.log(svg.selectAll("g"))
+    svg.selectAll("g").each((d) => { //changed from forEach to each
+        if (d) {
+            let dId = Object.keys(disabilityMapping).indexOf(d.data.id);
+            let percentData = percentiles[dId].map((r) => [r.Response_Value, r.Percentage]);
+            displayPieCharts(d, d.data.id, percentData);
+
+        }
+    });
+    return bob;
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// load a df
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+async function loadPercentileData(response) {
+    let filestr = "percentages/" + response + "_df.csv";
+    let percentileData = await d3.csv(filestr);
+    dict_obj = Object.keys(disabilityMapping).map((disability) => (percentileData.filter((d) => d.Disability_Type == disability)));
+    return dict_obj;
+}
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Bubble Click Handler
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -286,6 +328,59 @@ function drawKeyframe(kfi) {
     const activeVerseElement = d3.select(`#${kf.verseId}`);
     activeVerseElement.classed("active-verse", true);
     activeVerseElement.select(`.line:nth-child(${kf.activeLines[0] + 1})`).classed("active-line", true);
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Pie Chart Functions
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+function displayPieCharts(data, disabilityId, pieData) { // Changed 'node' to 'data'
+    const radius = data.r;
+    const color = d3.scaleOrdinal(d3.schemeCategory10);
+
+    // Create one pie generator
+    const pie = d3.pie().value(d => d[1]);
+    let data_ready = pie(pieData);
+    var arcGenerator = d3.arc()
+        .innerRadius(0)
+        .outerRadius(radius);
+    console.log( d3.select(data.parent));
+    // Append a new g element to this node group to hold the pie chart
+    const pieGroup = svg.append("g")
+        .attr("id", disabilityId.replaceAll(" ","_") + "_pie")
+        .attr("transform", `translate(${data.x}, ${data.y})`); // Initially center at the node's center
+
+    // Create the pie slices within this group
+    pieGroup
+        .selectAll('path')
+        .data(data_ready)
+        .enter()
+        .append('path')
+        .attr('d', arcGenerator)
+        .attr('fill', function(d){ return(color(d.data[0])) }) // Use d.data[0] as key
+        .attr("stroke", "black")
+        .style("stroke-width", "2px")
+        .style("opacity", 0)
+        .transition(500)
+        .style("opacity", 0.7);
+    
+    pieGroup
+        .selectAll('text')
+        .data(data_ready)
+        .enter()
+        .append('text')
+        .text(function(d){
+            let init = parseFloat(d.data[1]);
+            console.log(typeof(init));
+            if (init < 10) {
+                return '';
+            } else return `${init.toFixed(2)}%`;
+        })
+        .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
+        .style("text-anchor", "middle")
+        .style("font-size", radius * 0.15)
+    
+
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
