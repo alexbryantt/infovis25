@@ -390,65 +390,34 @@ async function mobilityOne() {
     console.log(ranking);
     setTimeout(() => {
         simulation.stop();
-     }, 2500);
+        d3.selectAll("g").each(function(d) {
+            if(d && d.data.id){
+                let pos = ranking.indexOf(d.data.id);
+                let newX = pos * width / ranking.length;
+                console.log(newX);
+                d3.select(this)
+                .transition(750)
+                .attr("transform", `translate(${newX}, ${d.y})`);
+                console.log("done");
+            }
+        });
+     }, 1250);
     
-     d3.selectAll("g").each(function(d) {
-        if(d && d.data.id){
-            let pos = ranking.indexOf(d.data.id);
-            let newX = pos * width / ranking.length;
-            console.log(newX);
-            d3.select(this)
-            .attr("transform", `translate(${newX}, ${d.y})`);
-            console.log("done");
-        }
-    });
-    mobilityOneRepositioned=true;
-    console.log("End");
-    income_percentiles = dDict;
-
-
-    percentiles = await loadPercentileData("INCOMEN");
-    console.log("percentiles");
-    console.log(percentiles);
-    console.log("nodes");
-    dTypes = d3.selectAll("g")
-        .filter((d) => d)
-        .data().map((d) => {return d.data.id});
-    dDict = {}
-    percentiles.forEach((d) => {
-        if (d.length > 0){
-            dDict[d[4].Disability_Type] = parseFloat(d[4].Percentage);
-            console.log(d[4].Disability_Type, d[4].Percentage)
-        }
-    });
-    ranking = dTypes.sort((a, b) => - dDict[a] + dDict[b]);
-    console.log(ranking);
-    setTimeout(() => {
-        simulation.stop();
-     }, 2500);
-    
-     d3.selectAll("g").each(function(d) {
-        if(d && d.data.id){
-            let pos = ranking.indexOf(d.data.id);
-            let newX = pos * width / ranking.length;
-            console.log(newX);
-            d3.select(this)
-            .attr("transform", `translate(${newX}, ${d.y})`);
-            console.log("done");
-        }
-    });
+     
     mobilityOneRepositioned=true;
     console.log("End");
     income_percentiles = dDict;
 }
 
 function mobilityTwo(){
-    d3.selectAll("g").filter((d) => d)
-    .transition(500)
-    .attr("translate", (d) => {
-        console.log(width - income_percentiles[d.data.id]);
-        return `(${d.x},${0.000005*(width - income_percentiles[d.data.id])})`;
-    });
+    setTimeout(() => {
+        d3.selectAll("g").filter((d) => (d && d.data.id))
+        .transition(500)
+        .attr("translate", (d) => {
+            console.log(width - income_percentiles[d.data.id]);
+            return `(${d.x},${0.000005*(width - income_percentiles[d.data.id])})`;
+        });
+    }, 15);
 
     // Optionally, you might want to re-apply a specific y-positioning force
     // instead of relying on the default gravity/centering.
