@@ -26,7 +26,7 @@ header {
     font-size: 30px;
     font-weight: 400;
     font-family: "Montserrat";
-    color: rgb(208, 199, 194);
+    color: white;
     margin-bottom: -5px;
 }
 
@@ -34,7 +34,7 @@ header {
     font-size: 20px;
     font-weight: 200;
     font-family: "Montserrat";
-    color: rgb(208, 199, 194);
+    color: white;
     margin-left: 7.5px;
 }
 
@@ -101,7 +101,7 @@ header {
     font-weight: 300;
     text-align: center;
     font-family: "Montserrat";
-    color: rgb(208, 199, 194);
+    color: white;
     margin: 10px 0;
     width: 260px; /* Fixed width for all verses */
     box-sizing: border-box; /* Include padding and border in the width */
