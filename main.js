@@ -611,6 +611,31 @@ async function loadPercentileData(response) {
 // Bar Chart Functions
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+// Helper function to wrap axis text
+function wrapAxisText(text, width) {
+    text.each(function() {
+        var text = d3.select(this),
+            words = text.text().split(/\n+/),
+            lineHeight = 1.1; // ems
+            
+        var y = text.attr("y"),
+            dy = parseFloat(text.attr("dy"));
+            
+        var tspan = text.text(null).append("tspan")
+            .attr("x", 0)
+            .attr("y", y)
+            .attr("dy", dy + "em");
+            
+        for (var i = 0; i < words.length; i++) {
+            tspan = text.append("tspan")
+                .attr("x", -9) // Adjust this value to align the text properly
+                .attr("y", y)
+                .attr("dy", ((i === 0) ? dy : (i * lineHeight)) + "em")
+                .text(words[i]);
+        }
+    });
+}
+
 function updateBarChart(dataType, percentiles) {
     // Clear any existing bar chart
     d3.select("#bar-chart-container svg").remove();
@@ -625,7 +650,7 @@ function updateBarChart(dataType, percentiles) {
     }
     
     // Set up SVG dimensions
-    const margin = { top: 30, right: 30, bottom: 50, left: 150 };
+    const margin = { top: 30, right: 30, bottom: 50, left: 180 }; // Increased left margin for multi-line text
     const barChartWidth = document.getElementById('bar-chart-container').offsetWidth - margin.left - margin.right;
     const barChartHeight = document.getElementById('bar-chart-container').offsetHeight - margin.top - margin.bottom;
     
@@ -788,7 +813,15 @@ function updateBarChart(dataType, percentiles) {
         .selectAll("text")
         .style("font-family", "Montserrat")
         .style("fill", "white")
-        .style("font-size", "14px");
+        .style("font-size", "14px")
+        .text(function(d) {
+            // Split "Independent disability" into two lines
+            if (d === "Independent Living Disability") {
+                return "Independent\nLiving Disability";
+            }
+            return d;
+        })
+        .call(wrapAxisText, 120); // Wrap text if needed
     
     // Style Y axis
     barSvg.selectAll(".domain, .tick line")
