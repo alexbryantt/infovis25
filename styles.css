@@ -2,9 +2,9 @@
 
 body {
     background-color: rgb(135, 134, 134);
-    overflow-y:scroll; /* Disable overall scrolling */
+    overflow-y: auto; /* Enable scrolling */
     margin: 0;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
@@ -44,6 +44,8 @@ header {
     justify-content: center;
     align-items: center;
     padding: 30px;
+    flex-direction: column;
+    overflow-y: visible; /* Allow content to be visible when scrolling */
 }
 
 .visualization-container {
@@ -91,6 +93,17 @@ header {
     width: 100%;
     height: auto;
     max-height: 100%; /* Adjust max height to fit container */
+}
+
+.bar-chart-container {
+    width: 90%;
+    height: 200px;
+    margin: 20px auto 80px auto; /* Increased margin to provide more space */
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    padding: 20px;
+    position: relative; /* Ensure it's properly positioned in the flow */
+    z-index: 5; /* Make sure it appears above other elements */
 }
 
 .verse {
@@ -204,9 +217,13 @@ footer {
 }
 
 .footer-class {
-    position: fixed;
+    position: sticky;
     width: 100%;
     bottom: 0;
     background-color: rgba(70, 69, 69, 0.8);
     padding-left: 40px;
+    z-index: 10; /* Ensure it stays on top when scrolling */
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-top: 20px;
 }

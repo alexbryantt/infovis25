@@ -182,8 +182,7 @@ let visibleVerseIndex = -1;
 const allVerses = d3.selectAll(".line");
 let isClicking = false;
 let clickTimeout = null;
-let scrollTimeout = null;
-let isScrolling = false;
+// Scroll variables removed to allow free scrolling
 let pieChart; // Declare pieChart globally
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -267,6 +266,26 @@ function scrollToKeyframe(index) {
         // Update node opacities based on disability type and verse
         updateNodeOpacities(kf.disabilityId);
         
+        // Update bar chart to reflect current disability, but only if not "all disability"
+        if (kf.disabilityId !== "all disability") {
+            if (visibleVerseIndex % 3 === 0) {
+                loadPercentileData("JOB").then(percentiles => {
+                    updateBarChart("JOB", percentiles);
+                });
+            } else if (visibleVerseIndex % 3 === 1) {
+                loadPercentileData("INCOMEN").then(percentiles => {
+                    updateBarChart("INCOMEN", percentiles);
+                });
+            } else if (visibleVerseIndex % 3 === 2) {
+                loadPercentileData("EDUCATE").then(percentiles => {
+                    updateBarChart("EDUCATE", percentiles);
+                });
+            }
+        } else {
+            // Clear bar chart for "all disability"
+            d3.select("#bar-chart-container svg").remove();
+        }
+        
         clearAnimations();
         if (kf['svgUpdate']) kf['svgUpdate']();
     }
@@ -308,6 +327,9 @@ function clearPieCharts(){
         .transition(150)
         .style("opacity", 0)
         .remove();
+        
+    // Clear bar chart
+    d3.select("#bar-chart-container svg").remove();
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // bob, steve, and jerry (all disability pie charts)
@@ -338,6 +360,10 @@ async function bob() {
 
         }
     });
+    
+    // Update the horizontal bar chart
+    updateBarChart("JOB", percentiles);
+    
     console.log("adding to be cleared");
     currentAnimations.add(clearPieCharts);
     return bob;
@@ -369,6 +395,10 @@ async function steve() {
 
         }
     });
+    
+    // Update the horizontal bar chart
+    updateBarChart("INCOMEN", percentiles);
+    
     console.log("adding to be cleared");
     
     currentAnimations.add(clearPieCharts);
@@ -412,6 +442,10 @@ async function jerry() {
 
         }
     });
+    
+    // Update the horizontal bar chart
+    updateBarChart("EDUCATE", percentiles);
+    
     console.log("adding to be cleared");
     
     currentAnimations.add(clearPieCharts);
@@ -444,6 +478,10 @@ async function sophia() {
 
         }
     });
+    
+    // Update the horizontal bar chart
+    updateBarChart("EDUCATE", percentiles);
+    
     console.log("adding to be cleared");
     
     currentAnimations.add(clearPieCharts);
@@ -487,6 +525,11 @@ async function claude() {
 
         }
     });
+    
+    // Update the horizontal bar chart - using education data for consistency
+    let educationPercentiles = await loadPercentileData("EDUCATE");
+    updateBarChart("EDUCATE", educationPercentiles);
+    
     console.log("adding to be cleared");
     
     currentAnimations.add(clearPieCharts);
@@ -562,6 +605,242 @@ async function loadPercentileData(response) {
     let percentileData = await d3.csv(filestr);
     dict_obj = Object.keys(disabilityMapping).map((disability) => (percentileData.filter((d) => d.Disability_Type == disability)));
     return dict_obj;
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Bar Chart Functions
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+function updateBarChart(dataType, percentiles) {
+    // Clear any existing bar chart
+    d3.select("#bar-chart-container svg").remove();
+    
+    // Get currently selected disability 
+    const currentKeyframe = keyframes[visibleVerseIndex] || { disabilityId: "all disability" };
+    const currentDisabilityId = currentKeyframe.disabilityId;
+    
+    // Don't show bar chart for "all disability"
+    if (currentDisabilityId === "all disability") {
+        return;
+    }
+    
+    // Set up SVG dimensions
+    const margin = { top: 30, right: 30, bottom: 50, left: 150 };
+    const barChartWidth = document.getElementById('bar-chart-container').offsetWidth - margin.left - margin.right;
+    const barChartHeight = document.getElementById('bar-chart-container').offsetHeight - margin.top - margin.bottom;
+    
+    // Create SVG element
+    const barSvg = d3.select("#bar-chart-container")
+        .append("svg")
+        .attr("width", barChartWidth + margin.left + margin.right)
+        .attr("height", barChartHeight + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+    
+    const mappedDisability = Object.keys(disabilityMapping).find(key => disabilityMapping[key] === currentDisabilityId);
+    
+    // Only show "No Disability" and the current disability
+    const noDisabilityIndex = Object.keys(disabilityMapping).indexOf("No Disability");
+    const currentDisabilityIndex = Object.keys(disabilityMapping).indexOf(mappedDisability);
+    
+    let chartData = [];
+    let title = "";
+    
+    // Extract the relevant data based on the dataType
+    if (dataType === "JOB") {
+        // Employment data (employed vs not)
+        title = "Employment status comparison";
+        const employed = "Employed";
+        
+        // No Disability data
+        if (percentiles[noDisabilityIndex]) {
+            const noDisabilityEmployed = percentiles[noDisabilityIndex].find(d => d.Response_Value === employed);
+            if (noDisabilityEmployed) {
+                chartData.push({
+                    category: "No Disability",
+                    value: parseFloat(noDisabilityEmployed.Percentage),
+                    label: "Employed"
+                });
+            }
+        }
+        
+        // Current disability data
+        if (percentiles[currentDisabilityIndex]) {
+            const disabilityEmployed = percentiles[currentDisabilityIndex].find(d => d.Response_Value === employed);
+            if (disabilityEmployed) {
+                chartData.push({
+                    category: mappedDisability,
+                    value: parseFloat(disabilityEmployed.Percentage),
+                    label: "Employed"
+                });
+            }
+        }
+    } 
+    else if (dataType === "INCOMEN") {
+        // Income data (>50k vs <50k)
+        title = "Income above $50,000 comparison";
+        const highIncome = "$50,000 to less than $75,000"; // Using this as threshold
+        
+        // No Disability data
+        if (percentiles[noDisabilityIndex]) {
+            const aboveThreshold = percentiles[noDisabilityIndex]
+                .filter(d => {
+                    const respValue = d.Response_Value;
+                    return respValue.includes("$75,000") || respValue.includes("$100,000") || respValue.includes("$150,000") || respValue.includes("$50,000");
+                })
+                .reduce((sum, item) => sum + parseFloat(item.Percentage), 0);
+            
+            chartData.push({
+                category: "No Disability",
+                value: aboveThreshold,
+                label: "Income ≥ $50k"
+            });
+        }
+        
+        // Current disability data
+        if (percentiles[currentDisabilityIndex]) {
+            const aboveThreshold = percentiles[currentDisabilityIndex]
+                .filter(d => {
+                    const respValue = d.Response_Value;
+                    return respValue.includes("$75,000") || respValue.includes("$100,000") || respValue.includes("$150,000") || respValue.includes("$50,000");
+                })
+                .reduce((sum, item) => sum + parseFloat(item.Percentage), 0);
+            
+            chartData.push({
+                category: mappedDisability,
+                value: aboveThreshold,
+                label: "Income ≥ $50k"
+            });
+        }
+    }
+    else if (dataType === "EDUCATE") {
+        // Education data (college educated vs not)
+        title = "College education comparison";
+        
+        // No Disability data
+        if (percentiles[noDisabilityIndex]) {
+            const collegeEducated = percentiles[noDisabilityIndex]
+                .filter(d => {
+                    const respValue = d.Response_Value;
+                    return respValue.includes("College") || respValue.includes("college") || respValue.includes("Bachelor");
+                })
+                .reduce((sum, item) => sum + parseFloat(item.Percentage), 0);
+            
+            chartData.push({
+                category: "No Disability",
+                value: collegeEducated,
+                label: "College Educated"
+            });
+        }
+        
+        // Current disability data
+        if (percentiles[currentDisabilityIndex]) {
+            const collegeEducated = percentiles[currentDisabilityIndex]
+                .filter(d => {
+                    const respValue = d.Response_Value;
+                    return respValue.includes("College") || respValue.includes("college") || respValue.includes("Bachelor");
+                })
+                .reduce((sum, item) => sum + parseFloat(item.Percentage), 0);
+            
+            chartData.push({
+                category: mappedDisability,
+                value: collegeEducated,
+                label: "College Educated"
+            });
+        }
+    }
+    
+    // Add title
+    barSvg.append("text")
+        .attr("x", barChartWidth / 2)
+        .attr("y", -10)
+        .attr("text-anchor", "middle")
+        .style("font-size", "18px")
+        .style("font-family", "Montserrat")
+        .style("fill", "white")
+        .text(title);
+    
+    // Create scales
+    const xScale = d3.scaleLinear()
+        .domain([0, 100])
+        .range([0, barChartWidth]);
+    
+    const yScale = d3.scaleBand()
+        .domain(chartData.map(d => d.category))
+        .range([0, barChartHeight])
+        .padding(0.3);
+    
+    // Add X axis
+    barSvg.append("g")
+        .attr("transform", `translate(0,${barChartHeight})`)
+        .call(d3.axisBottom(xScale).ticks(5).tickFormat(d => d + "%"))
+        .selectAll("text")
+        .style("font-family", "Montserrat")
+        .style("fill", "white");
+    
+    // Style X axis
+    barSvg.selectAll(".domain, .tick line")
+        .style("stroke", "white");
+    
+    // Add Y axis
+    barSvg.append("g")
+        .call(d3.axisLeft(yScale))
+        .selectAll("text")
+        .style("font-family", "Montserrat")
+        .style("fill", "white")
+        .style("font-size", "14px");
+    
+    // Style Y axis
+    barSvg.selectAll(".domain, .tick line")
+        .style("stroke", "white");
+    
+    // Add bars
+    const bars = barSvg.selectAll(".bar")
+        .data(chartData)
+        .enter()
+        .append("rect")
+        .attr("class", "bar")
+        .attr("y", d => yScale(d.category))
+        .attr("height", yScale.bandwidth())
+        .attr("x", 0)
+        .attr("fill", (d, i) => i === 0 ? "#69b3a2" : "#e15759")
+        .attr("width", 0) // Start at width 0 for animation
+        .transition()
+        .duration(800)
+        .attr("width", d => xScale(d.value));
+    
+    // Add value labels
+    barSvg.selectAll(".label")
+        .data(chartData)
+        .enter()
+        .append("text")
+        .attr("class", "label")
+        .attr("x", d => xScale(d.value) + 5)
+        .attr("y", d => yScale(d.category) + yScale.bandwidth() / 2)
+        .attr("dy", ".35em")
+        .text(d => d.value.toFixed(1) + "%")
+        .style("font-family", "Montserrat")
+        .style("fill", "white")
+        .style("font-size", "14px")
+        .style("opacity", 0) // Start transparent
+        .transition()
+        .duration(800)
+        .style("opacity", 1); // Fade in
+    
+    // Add data label text
+    barSvg.selectAll(".bar-label")
+        .data(chartData)
+        .enter()
+        .append("text")
+        .attr("class", "bar-label")
+        .attr("x", 5)
+        .attr("y", d => yScale(d.category) + yScale.bandwidth() / 2)
+        .attr("dy", ".35em")
+        .text(d => d.label)
+        .style("font-family", "Montserrat")
+        .style("fill", "white")
+        .style("font-size", "12px")
+        .style("text-anchor", "start");
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Bubble Click Handler
@@ -738,24 +1017,7 @@ function displayPieCharts(data, disabilityId, pieData, flag = null) {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Event Listeners
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-window.addEventListener('wheel', (event) => {
-    if (isScrolling) {
-        return;
-    }
-
-    isScrolling = true;
-
-    if (event.deltaY > 0) {
-        forwardClicked();
-    } else if (event.deltaY < 0) {
-        backwardClicked();
-    }
-
-    scrollTimeout = setTimeout(() => {
-        isScrolling = false;
-        scrollTimeout = null;
-    }, 500);
-});
+// Wheel event listener removed to allow free scrolling
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Node Opacity Control Function
@@ -794,6 +1056,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         visibleVerseIndex = -1;
         updateNodeOpacities("all disability");
         
+        // Don't initialize bar chart initially (since we start with all disability)
+        
         document.getElementById("forward-button").addEventListener("click", forwardClicked);
         document.getElementById("backward-button").addEventListener("click", backwardClicked);
         document.getElementById("reset-button").addEventListener("click", async function(d) {
@@ -813,12 +1077,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Recreate the visualization
             svg.selectAll("*").remove();
             d3.select("#bubble-chart-container").selectAll("svg").remove();
+            d3.select("#bar-chart-container svg").remove();
             
             // Redraw everything
             const data = await loadData();
             bubbleData = data;
             createBubbleChart(data);
             createSimulation(null, true);
+            
+            // Don't initialize bar chart after reset (since we reset to all disability)
             
             // Go to first verse and line
             visibleVerseIndex = 0;
