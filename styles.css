@@ -2,7 +2,7 @@
 
 body {
     background-color: rgb(135, 134, 134);
-    overflow: hidden; /* Disable overall scrolling */
+    overflow-y:scroll; /* Disable overall scrolling */
     margin: 0;
     height: 100vh;
     display: flex;
@@ -60,7 +60,7 @@ header {
     align-items: center;
     justify-content: center;
     padding: 20px;
-    overflow-y: auto; /* Enable scrolling within the poetry columns */
+    
     scrollbar-width: thin;
     -webkit-overflow-scrolling: touch;
 }
@@ -167,7 +167,7 @@ footer {
 
 .arrow-button {
     padding: 8px 16px;
-    margin: 0 8px;
+    margin: 10px 8px;
     font-size: 1em;
     cursor: pointer;
     background-color: rgb(208, 199, 194);
@@ -182,7 +182,7 @@ footer {
 
 .button {
     padding: 8px 16px;
-    margin: 0 40px;
+    margin: 0 8px;
     font-size: 1em;
     font-family: "Montserrat";
     background-color: rgb(208, 199, 194);
@@ -201,4 +201,12 @@ footer {
     padding: 5px;
     padding-left: 20px;
     width: 395px;
+}
+
+.footer-class {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    background-color: rgba(70, 69, 69, 0.8);
+    padding-left: 40px;
 }
