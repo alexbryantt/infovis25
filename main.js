@@ -332,7 +332,7 @@ async function bob() {
             let dId = Object.keys(disabilityMapping).indexOf(d.data.id);
             let pDataExists = percentiles[dId]
             if(pDataExists) {
-                percentData = pDataExists.map((r) => [r.Response_Value, r.Percentage]);
+                percentData = pDataExists.map((r) => [r.Response_Value, r.Percentage, r.Disability_Type]);
                 displayPieCharts(d, d.data.id, percentData, "JOB");
             }
 
@@ -363,7 +363,7 @@ async function steve() {
             let dId = Object.keys(disabilityMapping).indexOf(d.data.id);
             let pDataExists = percentiles[dId]
             if(pDataExists) {
-                percentData = pDataExists.map((r) => [r.Response_Value, r.Percentage]);
+                percentData = pDataExists.map((r) => [r.Response_Value, r.Percentage, r.Disability_Type]);
                 displayPieCharts(d, d.data.id, percentData, "INCOMEN");
             }
 
@@ -406,7 +406,7 @@ async function jerry() {
             let dId = Object.keys(disabilityMapping).indexOf(d.data.id);
             let pDataExists = percentiles[dId]
             if(pDataExists) {
-                percentData = pDataExists.map((r) => [r.Response_Value, r.Percentage]);
+                percentData = pDataExists.map((r) => [r.Response_Value, r.Percentage, r.Disability_Type]);
                 displayPieCharts(d, d.data.id, percentData, "EDUCATE");
             }
 
@@ -438,7 +438,7 @@ async function sophia() {
             let dId = Object.keys(disabilityMapping).indexOf(d.data.id);
             let pDataExists = percentiles[dId]
             if(pDataExists) {
-                percentData = pDataExists.map((r) => [r.Response_Value, r.Percentage]);
+                percentData = pDataExists.map((r) => [r.Response_Value, r.Percentage, r.Disability_Type]);
                 displayPieCharts(d, d.data.id, percentData);
             }
 
@@ -481,7 +481,7 @@ async function claude() {
             let dId = Object.keys(disabilityMapping).indexOf(d.data.id);
             let pDataExists = percentiles[dId]
             if(pDataExists) {
-                percentData = pDataExists.map((r) => [r.Response_Value, r.Percentage]);
+                percentData = pDataExists.map((r) => [r.Response_Value, r.Percentage, r.Disability_Type]);
                 displayPieCharts(d, d.data.id, percentData);
             }
 
@@ -574,6 +574,14 @@ function handleBubbleClick(event, d) {
         scrollToKeyframe(firstKeyframeIndex);
     }
 }
+function handlePieClick(event, d) {
+    const disabilityId = d.data[2];
+    const firstKeyframeIndex = findFirstKeyframeByDisability(disabilityId);
+    if (firstKeyframeIndex !== null) {
+        visibleVerseIndex = firstKeyframeIndex;
+        scrollToKeyframe(firstKeyframeIndex);
+    }
+}
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -632,7 +640,7 @@ function drawKeyframe(kfi) {
 function displayPieCharts(data, disabilityId, pieData, flag = null) { 
     const radius = data.r;
     const color = d3.scaleOrdinal(d3.schemeCategory10);
-
+    console.log(pieData);
     // Create one pie generator
     const pie = d3.pie().value(d => d[1]);
     let data_ready = pie(pieData);
@@ -660,6 +668,7 @@ function displayPieCharts(data, disabilityId, pieData, flag = null) {
         .data(data_ready)
         .enter()
         .append('path')
+        .on("click", handlePieClick)
         .attr('d', arcGenerator)
         .attr('fill', function(d){ return(color(d.data[0])) }) // Use d.data[0] as key
         .attr("stroke", "black")
@@ -685,11 +694,12 @@ function displayPieCharts(data, disabilityId, pieData, flag = null) {
         .style("font-size", radius * 0.15)
         .attr("font-family", "Montserrat")
         .style("opacity", pieOpacity); // sets proper pie opacity
-    
-        const legend = svg.append("g")
-        .attr("class", "legend")
-        .attr("transform", `translate(${200}, 100)`) // Moved down to avoid overlapping with the title
-        .attr("font-family", "Montserrat");
+        
+
+    const legend = svg.append("g")
+    .attr("class", "legend")
+    .attr("transform", `translate(${200}, 100)`) // Moved down to avoid overlapping with the title
+    .attr("font-family", "Montserrat");
 
     const legendRectSize = 23; 
     const legendSpacing = 12;
