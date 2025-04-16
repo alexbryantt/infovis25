@@ -4,25 +4,25 @@
 let keyframes = [
     { disabilityId: "all disability", verseId: "verse1", activeLines: [1], svgUpdate: bob },
     { disabilityId: "all disability", verseId: "verse1", activeLines: [2], svgUpdate: steve},
-    { disabilityId: "all disability", verseId: "verse1", activeLines: [3], svgUpdate: jerry },
-    { disabilityId: "mobility disability", verseId: "verse2", activeLines: [1], svgUpdate: mobilityOne },
-    { disabilityId: "mobility disability", verseId: "verse2", activeLines: [2], svgUpdate: mobilityTwo },
-    { disabilityId: "mobility disability", verseId: "verse2", activeLines: [3] },
-    { disabilityId: "self-care disability", verseId: "verse3", activeLines: [1], svgUpdate: sophia },
-    { disabilityId: "self-care disability", verseId: "verse3", activeLines: [2], svgUpdate: sophia },
+    { disabilityId: "all disability", verseId: "verse1", activeLines: [3], svgUpdate: sophia },
+    { disabilityId: "mobility disability", verseId: "verse2", activeLines: [1], svgUpdate: bob },
+    { disabilityId: "mobility disability", verseId: "verse2", activeLines: [2], svgUpdate: steve },
+    { disabilityId: "mobility disability", verseId: "verse2", activeLines: [3], svgUpdate: sophia },
+    { disabilityId: "self-care disability", verseId: "verse3", activeLines: [1], svgUpdate: bob },
+    { disabilityId: "self-care disability", verseId: "verse3", activeLines: [2], svgUpdate: steve },
     { disabilityId: "self-care disability", verseId: "verse3", activeLines: [3], svgUpdate: sophia },
-    { disabilityId: "cognitive disability", verseId: "verse4", activeLines: [1], svgUpdate: claude },
-    { disabilityId: "cognitive disability", verseId: "verse4", activeLines: [2], svgUpdate: claude},
-    { disabilityId: "cognitive disability", verseId: "verse4", activeLines: [3], svgUpdate: claude},
-    { disabilityId: "auditory disability", verseId: "verse5", activeLines: [1] },
-    { disabilityId: "auditory disability", verseId: "verse5", activeLines: [2] },
-    { disabilityId: "auditory disability", verseId: "verse5", activeLines: [3] },
-    { disabilityId: "visual disability", verseId: "verse6", activeLines: [1] },
-    { disabilityId: "visual disability", verseId: "verse6", activeLines: [2] },
-    { disabilityId: "visual disability", verseId: "verse6", activeLines: [3] },
-    { disabilityId: "independent disability", verseId: "verse7", activeLines: [1] },
-    { disabilityId: "independent disability", verseId: "verse7", activeLines: [2] },
-    { disabilityId: "independent disability", verseId: "verse7", activeLines: [3] },
+    { disabilityId: "cognitive disability", verseId: "verse4", activeLines: [1], svgUpdate: bob },
+    { disabilityId: "cognitive disability", verseId: "verse4", activeLines: [2], svgUpdate: steve},
+    { disabilityId: "cognitive disability", verseId: "verse4", activeLines: [3], svgUpdate: sophia},
+    { disabilityId: "auditory disability", verseId: "verse5", activeLines: [1], svgUpdate: bob },
+    { disabilityId: "auditory disability", verseId: "verse5", activeLines: [2], svgUpdate: steve },
+    { disabilityId: "auditory disability", verseId: "verse5", activeLines: [3], svgUpdate: sophia },
+    { disabilityId: "visual disability", verseId: "verse6", activeLines: [1], svgUpdate: bob },
+    { disabilityId: "visual disability", verseId: "verse6", activeLines: [2], svgUpdate: steve },
+    { disabilityId: "visual disability", verseId: "verse6", activeLines: [3], svgUpdate: sophia },
+    { disabilityId: "independent disability", verseId: "verse7", activeLines: [1], svgUpdate: bob },
+    { disabilityId: "independent disability", verseId: "verse7", activeLines: [2], svgUpdate: steve },
+    { disabilityId: "independent disability", verseId: "verse7", activeLines: [3], svgUpdate: sophia },
 ];
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -102,50 +102,61 @@ function createSimulation(clickedData = null, countsForFirst = true) { //changed
 
     const root = d3.pack().size([width - margin * 10, height - margin * 10]).padding(4)(d3.hierarchy({ children: bubbleData }).sum(d => d.value));
 
-    simulation = d3.forceSimulation(root.leaves())
-        .force("collision", d3.forceCollide().radius(d => d.r + collisionRadius).strength(1));
+    // Only create the simulation if it doesn't exist or if we're in the first verse
+    if (!simulation || isFirstClick) {
+        simulation = d3.forceSimulation(root.leaves())
+            .force("collision", d3.forceCollide().radius(d => d.r + collisionRadius).strength(1));
 
-    if (isFirstClick && countsForFirst) {
-        simulation.force("center", d3.forceCenter(width / 2, height / 2));
-        isFirstClick = false;
-    }
+        if (isFirstClick && countsForFirst) {
+            simulation.force("center", d3.forceCenter(width / 2, height / 2));
+            isFirstClick = false;
+        }
 
-    simulation.force("special", alpha => { // Changed to use alpha
-        const heightFactor = 1.5; // Changed from 2 to 1.5 to position bubbles lower
-        const verticalOffset = 100; // Additional offset to move bubbles down
-        
-        simulation.nodes().forEach(node => {
-            if (clickedData && node.data.id === clickedData.id) { //use clickedData
-                node.fx = width / 2;
-                node.fy = (height / heightFactor) + verticalOffset;
-            } else if (isFirstClick && node.data.id === "No Disability") {
-                node.fx = width / 2;
-                node.fy = (height / heightFactor) + verticalOffset;
-            }
-            else {
-                node.fx = null;
-                const targetY = node.y + 10 + verticalOffset;
-                const bottomBoundary = height - node.r - 20; // Keep a margin at the bottom
-                node.fy = targetY > bottomBoundary ? bottomBoundary : targetY;
-            }
+        simulation.force("special", alpha => { // Changed to use alpha
+            const heightFactor = 1.5; // Changed from 2 to 1.5 to position bubbles lower
+            const verticalOffset = 100; // Additional offset to move bubbles down
+            
+            simulation.nodes().forEach(node => {
+                if (clickedData && node.data.id === clickedData.id) { //use clickedData
+                    node.fx = width / 2;
+                    node.fy = (height / heightFactor) + verticalOffset;
+                } else if (isFirstClick && node.data.id === "No Disability") {
+                    node.fx = width / 2;
+                    node.fy = (height / heightFactor) + verticalOffset;
+                }
+                else {
+                    node.fx = null;
+                    const targetY = node.y + 10 + verticalOffset;
+                    const bottomBoundary = height - node.r - 20; // Keep a margin at the bottom
+                    node.fy = targetY > bottomBoundary ? bottomBoundary : targetY;
+                }
 
-            // Enforce horizontal boundaries.  Important:  Use node.x and node.y
-            if (node.x < node.r) node.x = node.r;
-            if (node.x > width - node.r) node.x = width - node.r;
+                // Enforce horizontal boundaries.  Important:  Use node.x and node.y
+                if (node.x < node.r) node.x = node.r;
+                if (node.x > width - node.r) node.x = width - node.r;
+            });
         });
-    });
 
-    simulation.on("tick", () => {
+        simulation.on("tick", () => {
+            const node = svg.selectAll("g").data(root.leaves());
+            node.attr("transform", d => `translate(${d.x},${d.y})`);
+            node.data().forEach((d) => {
+                let dId = d.data.id;
+                let pie = svg.select("#" + dId.replaceAll(" ","_") + "_pie");
+                pie.attr("transform", () => `translate(${d.x},${d.y})`);
+            });
+        });
+
+        simulation.alphaTarget(0.3).restart(); // Add this line to start the simulation
+    } else {
+        // For non-first verses, just update the pie charts without changing positions
         const node = svg.selectAll("g").data(root.leaves());
-        node.attr("transform", d => `translate(${d.x},${d.y})`);
         node.data().forEach((d) => {
             let dId = d.data.id;
             let pie = svg.select("#" + dId.replaceAll(" ","_") + "_pie");
             pie.attr("transform", () => `translate(${d.x},${d.y})`);
         });
-    });
-
-    simulation.alphaTarget(0.3).restart(); // Add this line to start the simulation
+    }
 }
 
 
@@ -239,20 +250,19 @@ function scrollToKeyframe(index) {
                     });
             }
         }
-        console.log("COMPARE OLD TO NEW");
-        console.log(previousVerseIndex);
-        console.log(firstLineOfVerse);
-        console.log(firstLineOfVerse == previousVerseIndex);
-        if (firstLineOfVerse !== previousVerseIndex) {
+        
+        // Only run simulation for first verse (which is verse1)
+        if (kf.verseId === "verse1" && previousVerseIndex !== 0) {
             const currentDisabilityId = kf.disabilityId;
             const targetData = bubbleData.find(d => disabilityMapping[d.id] === currentDisabilityId);
             simulation?.stop();
-            createSimulation(targetData); // Pass targetData
+            createSimulation(targetData, true); // Pass targetData and force simulation
 
             simulation.alphaTarget(0.3).restart();
             simulation.transitionDuration = 250;
-            previousVerseIndex = firstLineOfVerse;
         }
+        
+        previousVerseIndex = firstLineOfVerse;
         
         // Update node opacities based on disability type and verse
         updateNodeOpacities(kf.disabilityId);
@@ -372,7 +382,7 @@ async function jerry() {
         .attr("id", "label")
         .attr("x", width / 2)  // Set the x-coordinate
         .attr("y", 25)  // Set the y-coordinate
-        .text("Urban/rural classification among adults")
+        .text("Education levels among adults")
         .attr("font-size", "35px") // make the text visible
         .attr('text-anchor', 'middle')
         .attr("fill", "black")
@@ -389,7 +399,7 @@ async function jerry() {
         .attr("fill", "black")
         .attr("font-family", "Montserrat");
     
-    let percentiles = await loadPercentileData("METRO");
+    let percentiles = await loadPercentileData("EDUCATE");
     console.log(svg.selectAll("g"))
     svg.selectAll("g").each((d) => { //changed from forEach to each
         if (d) {
@@ -397,7 +407,7 @@ async function jerry() {
             let pDataExists = percentiles[dId]
             if(pDataExists) {
                 percentData = pDataExists.map((r) => [r.Response_Value, r.Percentage]);
-                displayPieCharts(d, d.data.id, percentData);
+                displayPieCharts(d, d.data.id, percentData, "EDUCATE");
             }
 
         }
@@ -776,15 +786,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         document.getElementById("forward-button").addEventListener("click", forwardClicked);
         document.getElementById("backward-button").addEventListener("click", backwardClicked);
-        document.getElementById("reset-button").addEventListener("click", function(d) {
+        document.getElementById("reset-button").addEventListener("click", async function(d) {
             //reset everything
             activeDisability = null;
-            isFirstClick=true;
-            previousVerseIndex=0;
-            svg.selectAll().remove();
-            createSimulation();
+            isFirstClick = true;
+            previousVerseIndex = 0;
             
-            // Instead of scrollToKeyframe(-1), go directly to the first verse and line
+            // Clear any existing charts
+            clearAnimations();
+            clearPieCharts();
+            
+            // Reset simulation
+            simulation?.stop();
+            simulation = null;
+            
+            // Recreate the visualization
+            svg.selectAll("*").remove();
+            d3.select("#bubble-chart-container").selectAll("svg").remove();
+            
+            // Redraw everything
+            const data = await loadData();
+            bubbleData = data;
+            createBubbleChart(data);
+            createSimulation(null, true);
+            
+            // Go to first verse and line
             visibleVerseIndex = 0;
             scrollToKeyframe(0);
         });
