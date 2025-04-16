@@ -8,3 +8,7 @@ FEATURES:
 - Overlayed pie charts
 - Highlights current disability category
 - Bar chart display to more accurate comparisons of the most salient differences between disability group and no disability group
+
+RUN LOCALLY:
+- Place all files into directory
+- Run index.html on local host
