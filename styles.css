@@ -97,7 +97,7 @@ header {
     font-size: 1em;
     line-height: 1.4;
     list-style-type: none;
-    padding: 15px 0;
+    padding: 15px 10px 25px 10px; /* Increased bottom padding to prevent overlap */
     font-weight: 300;
     text-align: center;
     font-family: "Montserrat";
@@ -105,32 +105,57 @@ header {
     margin: 10px 0;
     width: 260px; /* Fixed width for all verses */
     box-sizing: border-box; /* Include padding and border in the width */
+    border: 1px solid transparent; /* Transparent border to reserve space */
+    border-radius: 5px; /* Match active-verse styling */
+    min-height: 160px; /* Further increased height to prevent overlaps */
+    transition: all 0.3s ease; /* Smooth transition for all properties */
 }
 
 .line-i {
     font-size: 0.9em;
     font-style: italic;
     font-weight: bold;
-    margin-bottom: 5px;
+    margin-bottom: 12px; /* Increased bottom margin to match other line spacing */
+    min-height: 1.3em;
+    line-height: 1.3;
+    transition: all 0.3s ease;
 }
 
+/* Make all lines have the same height regardless of bold status */
 .line {
-    margin-bottom: 2px;
+    margin-bottom: 10px; /* Further increased spacing between lines */
+    /* Reserve space for font-weight variations to prevent layout shifts */
+    font-weight: 400;
+    line-height: 1.3; /* Reduced line height */
+    min-height: 1.3em; /* Changed from fixed to minimum height */
+    height: auto; /* Allow height to expand for longer content */
+    transition: all 0.3s ease;
+    word-wrap: break-word; /* Enable word wrapping */
+    overflow-wrap: break-word;
+    hyphens: auto; /* Allow hyphenation */
+}
+
+/* Give the last line in each verse extra space */
+.line:last-child {
+    margin-bottom: 15px; /* Extra margin for the last line */
 }
 
 .active-verse {
     border: 1px solid white;
-    border-radius: 5px;
-    padding: 10px;
+    /* No need to change padding as we already set it on .verse */
+    transition: all 0.3s ease;
+    /* We don't need to set min-height here as it's already in .verse */
 }
 
 .active-verse .line {
     color: rgb(70, 69, 69);
+    transition: color 0.3s ease;
 }
 
 .active-line {
-    color: #ffffff;
-    font-weight: bold;
+    color: #ffffff !important;
+    font-weight: 700;
+    transition: all 0.3s ease;
 }
 
 footer {

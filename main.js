@@ -199,25 +199,44 @@ function scrollToKeyframe(index) {
         console.log(index)
 
         const kf = keyframes[index];
-        d3.selectAll(".verse").classed("active-verse", false);
-        d3.selectAll(".line").classed("active-line", false);
+        
+        // Apply smooth transitions
+        d3.selectAll(".verse")
+            .classed("active-verse", false);
+            
+        d3.selectAll(".line")
+            .classed("active-line", false);
 
         const activeVerseElement = d3.select(`#${kf.verseId}`);
         const firstLineOfVerse = 3 * Math.floor(index / 3);
         if (!activeVerseElement.empty()) {
-            activeVerseElement.classed("active-verse", true);
+            // Apply classes with transitions
+            activeVerseElement
+                .classed("active-verse", true);
             
             // Get the correct line based on the activeLines array in the keyframe
             // The line elements start at index 2 (after the title), so we add 1 to the activeLines value
             const lineIndex = kf.activeLines[0] + 1;
             const lineSelector = `#${kf.verseId} .line:nth-of-type(${lineIndex})`;
-            d3.select(lineSelector).classed("active-line", true);
+            d3.select(lineSelector)
+                .classed("active-line", true);
             
             // Find the index of the *first line* of this verse.  This is crucial.
             if (firstLineOfVerse !== -1) {
                 const verse = activeVerseElement.select(".line").node();
                 const poetryColumn = verse.parentNode;
-                poetryColumn.scrollTop = verse.offsetTop - poetryColumn.offsetTop - (poetryColumn.offsetHeight - verse.offsetHeight) / 2;
+                
+                // Smooth scroll instead of jump
+                d3.select(poetryColumn)
+                    .transition()
+                    .duration(400)
+                    .tween("scrollTop", function() {
+                        const targetScrollTop = verse.offsetTop - poetryColumn.offsetTop - (poetryColumn.offsetHeight - verse.offsetHeight) / 2;
+                        const i = d3.interpolateNumber(poetryColumn.scrollTop, targetScrollTop);
+                        return function(t) {
+                            poetryColumn.scrollTop = i(t);
+                        };
+                    });
             }
         }
         console.log("COMPARE OLD TO NEW");
