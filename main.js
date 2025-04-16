@@ -781,7 +781,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         createSimulation(); // call is made in createBubbleChart
         
         // init opacity
-        visibleVerseIndex = 0;
+        visibleVerseIndex = -1;
         updateNodeOpacities("all disability");
         
         document.getElementById("forward-button").addEventListener("click", forwardClicked);
