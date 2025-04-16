@@ -1,16 +1,11 @@
-# Bubble Chart of Disability Categories Static Visualization 
+# Bubble and Bar Charts by Disability
 
 Runs on https://infovis25.vercel.app/
 
-HOW-TO RUN LOCALLY:
-- Have 'summaries_ready.csv', index.html, and main.js in the same folder.
-- Run index.html in a local browser.
-
 FEATURES:
 - Loads data from CSV
-- Force-directed bubble layout (with dynamic or static version possible)
+- Force-directed bubble layout 
 - Automatic text scaling with bubble size
-  
-ADDITIONAL NOTES:
-- Adjusted poems to better fit dataset and adjust scope of project
-- Will still have the ability to further "pop" bubbles to further explore demographics in the dynamic implementation
+- Overlayed pie charts
+- Highlights current disability category
+- Bar chart display to more accurate comparisons of the most salient differences within each group
