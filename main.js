@@ -50,6 +50,7 @@ const height = width;
 function createBubbleChart(data) {
     const margin = 1;
     const color = d3.scaleOrdinal(d3.schemeTableau10);
+    // const color = d3.color("white");
 
     const pack = d3.pack()
         .size([width - margin * 10, height - margin * 10])
@@ -93,6 +94,7 @@ function createBubbleChart(data) {
 
     bubbleData = data;
 }
+
 
 function createSimulation(clickedData = null, countsForFirst = true) { //changed
     const width = 1000;
@@ -364,6 +366,9 @@ async function bob() {
     // Update the horizontal bar chart
     updateBarChart("JOB", percentiles);
     
+    // Change bubble colors to white after pie charts are loaded
+    changeBubbleColors();
+    
     console.log("adding to be cleared");
     currentAnimations.add(clearPieCharts);
     return bob;
@@ -398,6 +403,9 @@ async function steve() {
     
     // Update the horizontal bar chart
     updateBarChart("INCOMEN", percentiles);
+    
+    // Change bubble colors to white after pie charts are loaded
+    changeBubbleColors();
     
     console.log("adding to be cleared");
     
@@ -481,6 +489,9 @@ async function sophia() {
     
     // Update the horizontal bar chart
     updateBarChart("EDUCATE", percentiles);
+    
+    // Change bubble colors to white after pie charts are loaded
+    changeBubbleColors();
     
     console.log("adding to be cleared");
     
@@ -948,6 +959,14 @@ function drawKeyframe(kfi) {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Pie Chart Functions
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// IMPLEMENT HERE
+function changeBubbleColors() {
+    svg.selectAll("circle")
+        .transition()
+        .duration(300)
+        .attr("fill", "white");
+}
 
 function displayPieCharts(data, disabilityId, pieData, flag = null) { 
     const radius = data.r;
